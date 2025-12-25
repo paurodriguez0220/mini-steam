@@ -30,12 +30,9 @@ jobs:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: Zip publish output and deploy to App Service
-        env:
-          APP_NAME: app-portfolio-games-ministeam-api-dev
-          RESOURCE_GROUP: rg-portfolio-games-dev
         run: |
           cd publish
           zip -r ../publish.zip .
           cd ..
           az account set --subscription 4d6302be-05c4-4bb7-b94f-2805445f5d1c
-          az webapp deployment source config-zip --resource-group ${{ env.RESOURCE_GROUP }} --name ${{ env.APP_NAME }} --src publish.zip
+          az webapp deployment source config-zip --resource-group ${{ vars.RESOURCE_GROUP }} --name ${{ vars.APP_NAME }} --src publish.zip
