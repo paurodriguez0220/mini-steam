@@ -1,0 +1,66 @@
+# Visual Studio / .NET
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Build output
+[Bb]in/
+[Oo]bj/
+artifacts/
+publish/
+
+# NuGet & package artifacts
+*.nupkg
+packages/
+project.lock.json
+project.fragment.lock.json
+
+# Visual Studio Code / JetBrains Rider
+.vscode/
+.idea/
+*.sln.iml
+
+# Rider / ReSharper
+_ReSharper*/
+*.DotSettings.user
+
+# Logs, databases, and runtime files
+*.log
+*.sql
+*.sqlite
+*.db
+
+# ASP.NET Core / secrets and environment files
+appsettings.*.Development.json
+secrets.json
+.env
+.env.*
+
+# Test results / coverage
+TestResults/
+coverage/
+*.coverage
+*.coveragexml
+*.trx
+
+# Misc / OS
+*.DS_Store
+Thumbs.db
+
+# Temporary and generated files
+*.userosscache
+*.cache
+*.ilk
+*.meta
+*.pdb
+*.obj
+*.log
+*.vspscc
+*.vssscc
+
+# Node/npm (if front-end exists)
+node_modules/
+npm-debug.log*
+yarn-error.log*
