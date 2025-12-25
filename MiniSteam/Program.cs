@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using MiniSteam;
 using MiniSteam.Application.Interfaces;
 using MiniSteam.Application.Services;
 using MiniSteam.Infrastructure.Data;
@@ -8,20 +9,10 @@ using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-
-// Add DbContext
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(connectionString));
-
 builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
-// DI
-builder.Services.AddScoped<IGameRepository, GameRepository>();
-builder.Services.AddScoped<GameService>();
+builder.Services.AddInfrastructure(builder.Configuration);
 
 var app = builder.Build();
 
@@ -34,4 +25,12 @@ app.MapScalarApiReference();
 app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
+
+// Ensure EF database is up-to-date
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.Migrate(); // Applies any pending migrations
+}
+
 app.Run();
