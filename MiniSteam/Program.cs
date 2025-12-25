@@ -1,9 +1,4 @@
-using Microsoft.EntityFrameworkCore;
 using MiniSteam;
-using MiniSteam.Application.Interfaces;
-using MiniSteam.Application.Services;
-using MiniSteam.Infrastructure.Data;
-using MiniSteam.Infrastructure.Repositories;
 using MiniSteam.Middleware;
 using Scalar.AspNetCore;
 
@@ -15,6 +10,9 @@ builder.Services.AddOpenApi();
 builder.Services.AddInfrastructure(builder.Configuration);
 
 var app = builder.Build();
+
+// Global exception handling middleware should be first so it can catch exceptions from subsequent middleware.
+app.UseGlobalExceptionHandler();
 
 // Apply base path and root redirect middleware
 app.UseBasePathRedirect();
