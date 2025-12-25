@@ -1,3 +1,6 @@
+using Scalar.AspNetCore;
+using MiniSteam.Middleware;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -8,11 +11,12 @@ builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
+// Apply base path and root redirect middleware
+app.UseBasePathRedirect();
+
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi();
-}
+app.MapOpenApi();
+app.MapScalarApiReference();
 
 app.UseHttpsRedirection();
 
