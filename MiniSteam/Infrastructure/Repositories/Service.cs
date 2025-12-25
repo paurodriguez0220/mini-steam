@@ -1,7 +1,7 @@
 ﻿using MiniSteam.Application.Interfaces;
 using MiniSteam.Domain.Entities;
 
-namespace MiniSteam.Application.Services
+namespace MiniSteam.Infrastructure.Repositories
 {
     public class Service<T> : IService<T> where T : BaseEntity
     {

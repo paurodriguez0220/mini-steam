@@ -1,7 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Identity.Data;
+using Microsoft.AspNetCore.Mvc;
 using MiniSteam.Application.Interfaces;
-using MiniSteam.Application.Services;
 using MiniSteam.Domain.Entities;
+using MiniSteam.Infrastructure.Repositories;
 
 namespace MiniSteam.Controllers
 {

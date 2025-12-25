@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MiniSteam.Application.Interfaces;
-using MiniSteam.Application.Services;
 using MiniSteam.Infrastructure.Data;
 using MiniSteam.Infrastructure.Repositories;
 
@@ -16,7 +15,7 @@ namespace MiniSteam
             // Repositories
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             services.AddScoped(typeof(IService<>), typeof(Service<>));
-            
+            services.AddScoped<IAuthService, AuthService>();
 
             return services;
         }

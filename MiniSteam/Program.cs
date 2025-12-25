@@ -4,15 +4,17 @@ using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Apply Auth
+builder.Services.AddJwtAuthentication(builder.Configuration);
+
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
 builder.Services.AddInfrastructure(builder.Configuration);
 
-var rateLimitSeconds = builder.Configuration.GetValue<int>("RateLimiting:WindowSeconds");
 var app = builder.Build();
 
-// Global exception handling middleware should be first so it can catch exceptions from subsequent middleware.
+// Apply general exception handling middleware
 app.UseGlobalExceptionHandler();
 
 // Apply base path and root redirect middleware
@@ -25,6 +27,7 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
 
-app.UseRateLimiting(TimeSpan.FromSeconds(rateLimitSeconds));
+// Apply rate limiting middleware
+app.UseRateLimiting(TimeSpan.FromSeconds(builder.Configuration.GetValue<int>("RateLimiting:WindowSeconds")));
 
 app.Run();
