@@ -14,10 +14,9 @@ namespace MiniSteam
             services.AddDbContext<AppDbContext>(options => options.UseSqlServer(connectionString));
 
             // Repositories
-            services.AddScoped<IGameRepository, GameRepository>();
-
-            // Services
-            services.AddScoped<GameService>();
+            services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+            services.AddScoped(typeof(IService<>), typeof(Service<>));
+            
 
             return services;
         }

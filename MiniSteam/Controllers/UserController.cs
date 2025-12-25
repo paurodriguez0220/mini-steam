@@ -1,15 +1,14 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MiniSteam.Application.Interfaces;
-using MiniSteam.Application.Services;
 using MiniSteam.Domain.Entities;
 
 namespace MiniSteam.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class GamesController : GenericController<Game>
+    public class UserController : GenericController<User>
     {
-        public GamesController(IService<Game> service) : base(service)
+        public UserController(IService<User> service) : base(service)
         {
         }
     }
