@@ -1,0 +1,44 @@
+name: Deploy Mini Steam
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy-dev:
+    runs-on: ubuntu-latest
+    environment: dev
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Restore and publish
+        run: |
+          dotnet restore MiniSteam/MiniSteam.csproj
+          dotnet publish MiniSteam/MiniSteam.csproj -c Release -o MiniSteam/publish
+
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Zip publish output and deploy to App Service
+        env:
+          APP_NAME: app-portfolio-games-ministeam-api-dev
+          RESOURCE_GROUP: rg-portfolio-games-dev # update this if your RG name differs
+        run: |
+          # create zip of published app
+          zip -r publish.zip MiniSteam/publish
+
+          # ensure correct subscription is selected (same subscription used above)
+          az account set --subscription 4d6302be-05c4-4bb7-b94f-2805445f5d1c
+
+          # deploy to App Service
+          az webapp deployment source config-zip --resource-group ${{ env.RESOURCE_GROUP }} --name ${{ env.APP_NAME }} --src publish.zip
