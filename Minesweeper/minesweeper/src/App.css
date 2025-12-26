@@ -1,0 +1,132 @@
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
+}
+
+.app {
+  text-align: center;
+}
+
+.board {
+  display: grid;
+  grid-template-columns: repeat(9, 32px);
+  gap: 4px;
+  justify-content: center;
+}
+
+.cell {
+  width: 32px;
+  height: 32px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  background: #c0c0c0;
+}
+
+.app {
+  padding: 24px;
+  text-align: center;
+}
+
+h1 {
+  margin-bottom: 16px;
+}
+
+/* Board */
+.board {
+  display: grid;
+  grid-template-columns: repeat(9, 32px);
+  gap: 2px;
+  justify-content: center;
+  background: #7b7b7b;
+  padding: 6px;
+  border: 3px solid #7b7b7b;
+}
+
+/* Cell base */
+.cell {
+  width: 32px;
+  height: 32px;
+  font-weight: bold;
+  font-size: 16px;
+  border: none;
+  cursor: pointer;
+  background: #c0c0c0;
+  box-shadow:
+    inset 2px 2px 0 #ffffff,
+    inset -2px -2px 0 #7b7b7b;
+}
+
+/* Hover */
+.cell:hover {
+  filter: brightness(1.05);
+}
+
+/* Revealed cell */
+.cell.revealed {
+  background: #bdbdbd;
+  box-shadow: inset 1px 1px 0 #7b7b7b;
+  cursor: default;
+}
+
+/* Mine */
+.cell.mine {
+  background: #ff6b6b;
+}
+
+/* Flag */
+.cell.flagged {
+  color: red;
+}
+
+/* Number colors */
+.cell.n1 { color: #0000ff; }
+.cell.n2 { color: #008200; }
+.cell.n3 { color: #ff0000; }
+.cell.n4 { color: #000084; }
+.cell.n5 { color: #840000; }
+.cell.n6 { color: #008284; }
+.cell.n7 { color: #000000; }
+.cell.n8 { color: #808080; }
