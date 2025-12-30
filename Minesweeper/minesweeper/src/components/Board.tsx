@@ -8,13 +8,21 @@ type Props = {
   onFlag: (r: number, c: number) => void;
 };
 
+  const BASE_COLS = 9;
+  const BASE_SIZE = 40;
+  const MIN_SIZE = 18;
+
 export function Board({ board, config, onReveal, onFlag }: Props) {
-  const cellSize = `clamp(18px, ${90 / config.cols}vw, 40px)`;
+  const scale = BASE_COLS / config.cols;
+  const cellPx = Math.max(MIN_SIZE, BASE_SIZE * scale);
+  const cellSize = `${cellPx}px`;
+
   return (
-    <div className="flex justify-center w-full">
-        <div className="grid gap-1 p-1 rounded w-full bg-[#7B6F4D]"
-            style={{ gridTemplateColumns: `repeat(${config.cols}, ${cellSize})` }}
-        >
+    <div className="inline-block">
+      <div
+        className="inline-grid gap-1 p-1 rounded bg-[#7B6F4D]"
+        style={{ gridTemplateColumns: `repeat(${config.cols}, ${cellSize})` }}
+      >
         {board.map((row, r) =>
           row.map((cell, c) => (
             <CellButton
