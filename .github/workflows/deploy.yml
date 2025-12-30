@@ -44,12 +44,12 @@ jobs:
 
       - name: Install frontend dependencies
         run: |
-          cd MiniSteam/Minesweeper/minesweeper
+          cd Minesweeper/minesweeper
           npm install
 
       - name: Build React app
         run: |
-          cd MiniSteam/Minesweeper/minesweeper
+          cd Minesweeper/minesweeper
           npm run build
 
       - name: Deploy to Azure Static Web App
@@ -58,5 +58,5 @@ jobs:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: upload
-          app_location: "MiniSteam/Minesweeper/minesweeper"
-          output_location: "MiniSteam/Minesweeper/minesweeper/dist"  # <-- Vite default    
+          app_location: "Minesweeper/minesweeper"
+          output_location: "Minesweeper/minesweeper/dist"  # <-- Vite default    
