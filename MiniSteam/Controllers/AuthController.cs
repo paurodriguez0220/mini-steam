@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Identity.Data;
+﻿using Azure.Core;
+using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using MiniSteam.Application.Interfaces;
+using MiniSteam.Infrastructure.Repositories;
 
 namespace MiniSteam.Controllers
 {
@@ -15,10 +17,10 @@ namespace MiniSteam.Controllers
             _authService = authService;
         }
 
-        [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginRequest request)
+        [HttpGet("{email}/{password}")]
+        public virtual async Task<IActionResult> Get(string email, string password)
         {
-            var token = await _authService.AuthenticateAsync(request.Email, request.Password);
+            var token = await _authService.AuthenticateAsync(email, password);
             if (token == null) return Unauthorized();
 
             return Ok(new { Token = token });
