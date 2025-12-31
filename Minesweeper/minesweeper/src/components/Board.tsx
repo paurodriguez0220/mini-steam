@@ -9,7 +9,7 @@ type Props = {
 };
 
 export function Board({ board, config, onReveal, onFlag }: Props) {
-  const CELL_SIZE = `40px`;
+  const CELL_SIZE = `30px`;
 
   return (
     <div className="inline-block">

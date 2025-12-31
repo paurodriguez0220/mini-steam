@@ -74,9 +74,9 @@ export function GameContainer() {
   }, [board, gameOver, config]);
 
   return (
-    <div>
+    <div className="flex w-full min-h-screen items-center justify-center">
       {/* 🎮 GAME CARD */}
-      <div className="inline-flex flex-col items-center gap-4 p-4 
+      <div className="inline-flex flex-col items-center gap-4
             bg-[#c0c0c0]
             border-[4px]
             border-t-[#ffffff]
