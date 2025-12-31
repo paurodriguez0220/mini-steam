@@ -1,11 +1,11 @@
-name: Deploy Minesweeper
+name: Deploy MiniSteamUI
 
 on:
   push:
     branches:
       - main
     paths:
-      - 'Ministeam/Minesweeper/**'
+      - 'MiniSteam/MiniSteamUI/**'
   workflow_dispatch:
 
 jobs:
@@ -23,19 +23,19 @@ jobs:
 
       - name: Install frontend dependencies
         run: |
-          cd Minesweeper/minesweeper
+          cd MiniSteamUI/ministeamui
           npm install
 
       - name: Build React app
         run: | 
-          cd Minesweeper/minesweeper
+          cd MiniSteamUI/ministeamui
           npm run build
 
       - name: Deploy to Azure Static Web App
         uses: Azure/static-web-apps-deploy@v1
         with:
-          azure_static_web_apps_api_token: ${{ secrets.SWA_MINESWEEPER }}
+          azure_static_web_apps_api_token: ${{ secrets.SWA_MINISTEAM }}
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: upload
-          app_location: Minesweeper/minesweeper
+          app_location: MiniSteamUI/ministeamui
           output_location: dist
