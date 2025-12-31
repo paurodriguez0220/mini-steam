@@ -79,9 +79,14 @@ export function GameContainer() {
       style={{ backgroundImage: `url(${bgImage})` }}
     >
       {/* 🎮 GAME CARD */}
-      <div className="inline-flex flex-col items-center gap-4 rounded-xl p-4 shadow-[0_10px_30px_rgba(0,0,0,0.5)] bg-[#c4bba3]">
-        <h1 className="text-3xl font-bold">Minesweeper</h1>
-
+      <div className="inline-flex flex-col items-center gap-4 p-4 
+            bg-[#c0c0c0]
+            border-[4px]
+            border-t-[#ffffff]
+            border-l-[#ffffff]
+            border-b-[#7b7b7b]
+            border-r-[#7b7b7b]"
+      >
         <TopBar
             flagsLeft={flagsLeft}
             gameOver={gameOver}

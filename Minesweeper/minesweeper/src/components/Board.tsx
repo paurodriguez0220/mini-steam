@@ -8,20 +8,22 @@ type Props = {
   onFlag: (r: number, c: number) => void;
 };
 
-  const BASE_COLS = 9;
-  const BASE_SIZE = 40;
-  const MIN_SIZE = 18;
-
 export function Board({ board, config, onReveal, onFlag }: Props) {
-  const scale = BASE_COLS / config.cols;
-  const cellPx = Math.max(MIN_SIZE, BASE_SIZE * scale);
-  const cellSize = `${cellPx}px`;
+  const CELL_SIZE = `40px`;
 
   return (
     <div className="inline-block">
       <div
-        className="inline-grid gap-1 p-1 rounded bg-[#7B6F4D]"
-        style={{ gridTemplateColumns: `repeat(${config.cols}, ${cellSize})` }}
+      className="
+        inline-grid
+        bg-[#c0c0c0]
+        border-[4px]
+        border-t-[#7b7b7b]
+        border-l-[#7b7b7b]
+        border-b-[#ffffff]
+        border-r-[#ffffff]
+      "
+        style={{ gridTemplateColumns: `repeat(${config.cols}, ${CELL_SIZE})` }}
       >
         {board.map((row, r) =>
           row.map((cell, c) => (

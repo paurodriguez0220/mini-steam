@@ -7,14 +7,14 @@ export const DIFFICULTIES: Record<string, GameConfig> = {
     mines: 10,
   },
   medium: {
-    rows: 12,
-    cols: 12,
-    mines: 20,
+    rows: 16,
+    cols: 16,
+    mines: 40,
   },
   hard: {
     rows: 16,
-    cols: 16,
-    mines: 30,
+    cols: 30,
+    mines: 99,
   },
 };
 
