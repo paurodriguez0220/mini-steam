@@ -15,7 +15,7 @@ export default function GameDetails() {
   if (!game) return <div className="p-6 text-white">Game not found</div>;
 
   return (
-    <div className="min-h-screen bg-[#ff4b5c] text-white p-6">
+    <div className="min-h-screen bg-[#ff4b5c] text-white p-6 font-poppins">
       <h1 className="text-3xl font-bold mb-4">{game.name}</h1>
       <p className="mb-6 text-[#ffe066]">Here is some info about {game.name}.</p>
       <button
