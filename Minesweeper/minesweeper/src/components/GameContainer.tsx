@@ -9,7 +9,6 @@ import {
   calculateNumbers,
   revealFlood,
 } from "../utils/board";
-import bgImage from "../assets/background-1.svg";
 
 export function GameContainer() {
   const [config, setConfig] = useState<GameConfig>(DIFFICULTIES.easy);
@@ -75,9 +74,7 @@ export function GameContainer() {
   }, [board, gameOver, config]);
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center  p-4 bg-cover bg-center bg-no-repeat"
-      style={{ backgroundImage: `url(${bgImage})` }}
-    >
+    <div>
       {/* 🎮 GAME CARD */}
       <div className="inline-flex flex-col items-center gap-4 p-4 
             bg-[#c0c0c0]
