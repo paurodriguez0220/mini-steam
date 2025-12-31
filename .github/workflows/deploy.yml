@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - main
+    paths:
+      - 'Ministeam/Ministeam/**'
   workflow_dispatch:
 
 jobs:
@@ -36,27 +38,3 @@ jobs:
           cd ..
           az account set --subscription 4d6302be-05c4-4bb7-b94f-2805445f5d1c
           az webapp deployment source config-zip --resource-group ${{ vars.RESOURCE_GROUP }} --name ${{ vars.APP_NAME }} --src publish.zip
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '20.x'
-
-      - name: Install frontend dependencies
-        run: |
-          cd Minesweeper/minesweeper
-          npm install
-
-      - name: Build React app
-        run: | 
-          cd Minesweeper/minesweeper
-          npm run build
-
-      - name: Deploy to Azure Static Web App
-        uses: Azure/static-web-apps-deploy@v1
-        with:
-          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          action: upload
-          app_location: Minesweeper/minesweeper
-          output_location: dist
