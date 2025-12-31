@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 
 const games = [
   { id: "minesweeper", name: "Minesweeper", desc: "Classic Minesweeper" },
+  { id: "2048", name: "2048", desc: "Classic 2048" },
   { id: "snake", name: "Snake", desc: "Grow your snake!" },
 ];
 

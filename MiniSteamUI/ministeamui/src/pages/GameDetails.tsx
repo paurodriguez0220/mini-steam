@@ -4,6 +4,7 @@ import GameModal from "./GameModal";
 
 const games = {
   minesweeper: { id: "minesweeper", name: "Minesweeper", src: "https://happy-mud-060686d00.4.azurestaticapps.net/" },
+  "2048": { id: "2048", name: "2048", src: "https://ambitious-sea-0aff5e300.2.azurestaticapps.net" },
   snake: { id: "snake", name: "Snake", src: "http://localhost:5174/snake" },
 };
 
