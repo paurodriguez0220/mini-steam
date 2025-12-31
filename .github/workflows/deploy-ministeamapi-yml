@@ -1,4 +1,4 @@
-name: Deploy Mini Steam
+name: Deploy Mini Steam API
 
 on:
   push:
