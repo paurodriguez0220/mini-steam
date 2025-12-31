@@ -20,7 +20,7 @@ export function CellButton({ cell, onReveal, onFlag }: Props) {
       className={`
         aspect-square w-full
         flex items-center justify-center
-        font-bold text-lg select-none
+        font-bold text-sm select-none
 
         ${revealed
           ? `
