@@ -5,9 +5,9 @@ import GameModal from "./GameModal";
 import img2048 from "../assets/2048.jpg";
 
 const games = {
-  minesweeper: { id: "minesweeper", name: "Minesweeper", src: "https://happy-mud-060686d00.4.azurestaticapps.net/", img: img2048, release: "27/2/2026", description: "Tales of Berseria returns with enhanced graphics and optimised gameplay!" },
+  minesweeper: { id: "minesweeper", name: "Minesweeper", src: "https://happy-mud-060686d00.4.azurestaticapps.net", img: img2048, release: "27/2/2026", description: "Tales of Berseria returns with enhanced graphics and optimised gameplay!" },
   "2048": { id: "2048", name: "2048", src: "https://ambitious-sea-0aff5e300.2.azurestaticapps.net", img: img2048, release: "27/2/2026", description: "Tales of Berseria returns with enhanced graphics and optimised gameplay!" },
-  snake: { id: "snake", name: "Snake", src: "http://localhost:5174/snake", img: img2048, release: "27/2/2026", description: "Tales of Berseria returns with enhanced graphics and optimised gameplay!" },
+  snake: { id: "snake", name: "Snake", src: "https://proud-meadow-014991f00.4.azurestaticapps.net", img: img2048, release: "27/2/2026", description: "Tales of Berseria returns with enhanced graphics and optimised gameplay!" },
 };
 
 export default function GameDetails() {
