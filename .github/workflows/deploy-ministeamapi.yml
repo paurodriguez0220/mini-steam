@@ -12,8 +12,6 @@ jobs:
   deploy-dev:
     runs-on: ubuntu-latest
     environment: dev
-    env:
-      SWA_URL_MINISTEAM: ${{ vars.SWA_URL_MINISTEAM }}
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
