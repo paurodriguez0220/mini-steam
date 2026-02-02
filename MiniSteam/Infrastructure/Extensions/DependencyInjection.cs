@@ -3,7 +3,7 @@ using MiniSteam.Application.Interfaces;
 using MiniSteam.Infrastructure.Data;
 using MiniSteam.Infrastructure.Repositories;
 
-namespace MiniSteam
+namespace MiniSteam.Infrastructure.Extensions
 {
     public static class DependencyInjection
     {

@@ -2,7 +2,7 @@
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
-namespace MiniSteam
+namespace MiniSteam.Infrastructure.Extensions
 {
     public static class JwtExtensions
     {

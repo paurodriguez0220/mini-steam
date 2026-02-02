@@ -1,24 +1,23 @@
-using MiniSteam;
+using MiniSteam.Infrastructure.Extensions;
 using MiniSteam.Middleware;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Apply Auth
-builder.Services.AddJwtAuthentication(builder.Configuration);
-
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
+builder.Services.AddJwtAuthentication(builder.Configuration);
 builder.Services.AddInfrastructure(builder.Configuration);
+builder.Services.AddConfiguredCors(builder.Configuration);
+
 
 var app = builder.Build();
 
-// Apply general exception handling middleware
 app.UseGlobalExceptionHandler();
-
-// Apply base path and root redirect middleware
 app.UseBasePathRedirect();
+
+app.UseCors("DefaultCorsPolicy");
 
 // Configure the HTTP request pipeline.
 app.MapOpenApi();
