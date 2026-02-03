@@ -6,42 +6,44 @@ namespace MiniSteam.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public abstract class GenericController<TEntity> : ControllerBase where TEntity : BaseEntity
+    public abstract class GenericController<TEntity, TDto> : ControllerBase
+        where TEntity : BaseEntity
     {
-        protected readonly IService<TEntity> _service;
+        protected readonly IService<TEntity, TDto> _service;
 
-        public GenericController(IService<TEntity> service)
+        public GenericController(IService<TEntity, TDto> service)
         {
             _service = service;
         }
 
         [HttpGet]
-        public virtual async Task<IActionResult> GetAll()
+        public virtual async Task<ActionResult<List<TDto>>> GetAll()
             => Ok(await _service.GetAllAsync());
 
         [HttpGet("{id}")]
-        public virtual async Task<IActionResult> Get(int id)
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public virtual async Task<ActionResult<TDto>> Get(int id)
         {
-            var entity = await _service.GetAsync(id);
-            return entity == null ? NotFound() : Ok(entity);
+            var dto = await _service.GetAsync(id);
+            return dto == null ? NotFound() : Ok(dto);
         }
 
         [HttpPost]
-        public virtual async Task<IActionResult> Create(TEntity entity)
-            => Ok(await _service.CreateAsync(entity));
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public virtual async Task<ActionResult<TDto>> Create(TDto dto)
+            => Ok(await _service.CreateAsync(dto));
 
         [HttpPut("{id}")]
-        public virtual async Task<IActionResult> Update(int id, TEntity entity)
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public virtual async Task<IActionResult> Update(int id, TDto dto)
         {
-            var entityIdProperty = entity.GetType().GetProperty("Id");
-            if (entityIdProperty == null || (int)entityIdProperty.GetValue(entity)! != id)
-                return BadRequest();
-
-            await _service.UpdateAsync(entity);
+            await _service.UpdateAsync(id, dto);
             return NoContent();
         }
 
         [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
         public virtual async Task<IActionResult> Delete(int id)
         {
             await _service.DeleteAsync(id);

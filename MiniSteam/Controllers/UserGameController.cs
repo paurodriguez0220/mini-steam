@@ -6,10 +6,10 @@ namespace MiniSteam.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class UserGameController : GenericController<UserGame>
+    public class UserGameController
     {
-        public UserGameController(IService<UserGame> service) : base(service)
-        {
-        }
+        //public UserGameController(IService<UserGame> service) : base(service)
+        //{
+        //}
     }
 }

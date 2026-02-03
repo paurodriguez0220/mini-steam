@@ -2,12 +2,12 @@
 
 namespace MiniSteam.Application.Interfaces
 {
-    public interface IService<T> where T : BaseEntity
+    public interface IService<TEntity, TDto> where TEntity : BaseEntity
     {
-        Task<T?> GetAsync(int id);
-        Task<List<T>> GetAllAsync();
-        Task<T> CreateAsync(T entity);
-        Task UpdateAsync(T entity);
+        Task<TDto?> GetAsync(int id);
+        Task<List<TDto>> GetAllAsync();
+        Task<TDto> CreateAsync(TDto dto);
+        Task UpdateAsync(int id, TDto dto);
         Task DeleteAsync(int id);
     }
 }

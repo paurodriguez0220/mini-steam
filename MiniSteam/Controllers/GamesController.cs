@@ -1,16 +1,17 @@
-﻿using Microsoft.AspNetCore.Identity.Data;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MiniSteam.Application.Interfaces;
 using MiniSteam.Domain.Entities;
-using MiniSteam.Infrastructure.Repositories;
+using MiniSteam.Domain.Dtos;
 
 namespace MiniSteam.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class GamesController : GenericController<Game>
+    [Authorize]
+    public class GamesController : GenericController<Game, GameDto>
     {
-        public GamesController(IService<Game> service) : base(service)
+        public GamesController(IService<Game, GameDto> service) : base(service)
         {
         }
     }

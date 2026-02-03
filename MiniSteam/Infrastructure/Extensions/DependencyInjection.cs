@@ -1,7 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MiniSteam.Application.Interfaces;
+using MiniSteam.Domain.Dtos;
+using MiniSteam.Domain.Entities;
 using MiniSteam.Infrastructure.Data;
+using MiniSteam.Infrastructure.Mappers;
 using MiniSteam.Infrastructure.Repositories;
+using MiniSteam.Infrastructure.Services;
 
 namespace MiniSteam.Infrastructure.Extensions
 {
@@ -14,8 +18,12 @@ namespace MiniSteam.Infrastructure.Extensions
 
             // Repositories
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-            services.AddScoped(typeof(IService<>), typeof(Service<>));
+            services.AddScoped<IMapper<Game, GameDto>, GameMapper>();
+            services.AddScoped<IService<Game, GameDto>, Service<Game, GameDto>>();
             services.AddScoped<IAuthService, AuthService>();
+
+            // Mappers
+            services.AddScoped<IMapper<Game, GameDto>, GameMapper>();
 
             return services;
         }
