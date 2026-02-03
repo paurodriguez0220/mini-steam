@@ -1,30 +1,36 @@
-import { BrowserRouter, Routes, Route, Link  } from "react-router-dom";
-import GamesList from "./pages/GamesList";
-import GameDetails from "./pages/GameDetails";
+import { useEffect } from "react";
+import { useTheme } from "./hooks/useTheme";
+import { useApi } from "./hooks/useApi";
+import { useAppStore } from "./store/useAppStore";
+import Sidebar from "./components/Sidebar";
+import Header from "./components/Header";
+import MainContent from "./components/MainContent";
 
 function App() {
-  return (
-    <BrowserRouter>
-      {/* Header */}
-      <header className="bg-[#E60012] text-white p-4 shadow-md flex items-center justify-between">
-        <h1 className="text-2xl font-bold">
-          Mini Steam
-        </h1>
-        <nav>
-          <Link to="/" className="hover:text-yellow-400 transition">
-            Home
-          </Link>
-        </nav>
-      </header>
+  const { theme, toggleTheme } = useTheme();
+  const { initApi } = useApi(); // initialize API on mount
 
-      {/* Main content */}
-      <main className="min-h-screen">
-        <Routes>
-          <Route path="/" element={<GamesList />} />
-          <Route path="/games/:id" element={<GameDetails />} />
-        </Routes>
-      </main>
-    </BrowserRouter>
+  const loading = useAppStore((state) => state.loading);
+
+  // Run API initialization once
+  useEffect(() => {
+    initApi();
+  }, [initApi]);
+
+  return (
+    <div className="flex h-screen bg-gray-100 dark:bg-gray-900 overflow-hidden">
+      <Sidebar />
+      <div className="flex-1 flex flex-col">
+        {loading ? (
+          <p className="text-gray-500 dark:text-gray-300">Loading...</p>
+        ) : (
+          <>
+            <Header theme={theme} toggleTheme={toggleTheme} />
+            <MainContent />
+          </>
+        )}
+      </div>
+    </div>
   );
 }
 
