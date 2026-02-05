@@ -2,14 +2,17 @@ import { useAppStore } from "../store/useAppStore";
 import { useCallback } from "react";
 
 export const useApi = () => {
-  const fetchToken = useAppStore((state) => state.fetchToken);
-  const fetchData = useAppStore((state) => state.fetchData);
-
   // Wrap in useCallback for stable reference
   const initApi = useCallback(async () => {
-    await fetchToken();
-    await fetchData();
-  }, [fetchToken, fetchData]);
+    const { fetchToken, fetchGames } = useAppStore.getState();
+    await fetchToken(); // Wait for token first
+    
+    // Only fetch games if token was successful
+    const token = useAppStore.getState().token;
+    if (token) {
+      await fetchGames();
+    }
+  }, []); // Empty deps because we access getState directly
 
   return { initApi }; // ✅ must return an object with initApi
 };
