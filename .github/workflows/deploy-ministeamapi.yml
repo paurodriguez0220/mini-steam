@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - 'Ministeam/Ministeam/**'
+      - 'MiniSteam/**'
   workflow_dispatch:
 
 jobs:
@@ -36,5 +36,5 @@ jobs:
           cd publish
           zip -r ../publish.zip .
           cd ..
-          az account set --subscription 4d6302be-05c4-4bb7-b94f-2805445f5d1c
+          az account set --subscription ${{ vars.AZURE_SUBSCRIPTION_ID }}
           az webapp deployment source config-zip --resource-group ${{ vars.RESOURCE_GROUP }} --name ${{ vars.APP_NAME }} --src publish.zip
