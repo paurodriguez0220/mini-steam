@@ -1,0 +1,47 @@
+# ---- .NET / Visual Studio ----
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+[Bb]in/
+[Oo]bj/
+artifacts/
+publish/
+*.nupkg
+packages/
+project.lock.json
+project.fragment.lock.json
+
+# ---- Node / Vite ----
+node_modules/
+dist/
+dist-ssr/
+.vite/
+*.local
+
+# ---- Secrets ----
+# Never commit real configuration values. Use user-secrets locally and
+# App Service / Static Web App configuration in Azure.
+.env
+.env.*
+!.env.example
+appsettings.Local.json
+appsettings.*.Local.json
+*.pfx
+*.p12
+
+# ---- Editors ----
+.vscode/*
+!.vscode/launch.json
+!.vscode/extensions.json
+.idea/
+*.swp
+
+# ---- OS ----
+.DS_Store
+Thumbs.db
+
+# ---- Logs ----
+*.log
+npm-debug.log*
