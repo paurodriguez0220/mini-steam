@@ -1,41 +1,69 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { GameFrame } from "../components/GameFrame";
 import { GameHeader } from "../components/GameHeader";
 import { GameIframe } from "../components/GameIframe";
 
-type Props = {
+export interface GameModalProps {
   gameName: string;
+  /** Absolute URL of the game, as returned by the API. */
   src: string;
   onClose: () => void;
-};
+}
 
-export default function GameModal({ gameName, src, onClose }: Props) {
+export function GameModal({ gameName, src, onClose }: GameModalProps) {
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Lock background scroll while the game is open.
   useEffect(() => {
-    // Lock scroll
     const originalOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-
-    // Restore scroll when modal unmounts
     return () => {
       document.body.style.overflow = originalOverflow;
     };
   }, []);
 
+  // Escape closes the modal.
+  useEffect(() => {
+    const handleKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [onClose]);
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-red-100/30 backdrop-blur-sm">
-      <div className="w-full h-full">
-        <GameFrame>
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label={gameName}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+      // Clicking the backdrop closes; clicks inside the frame must not bubble to it.
+      onClick={onClose}
+    >
+      <div className="w-full h-full" onClick={(event) => event.stopPropagation()}>
+        <GameFrame isLoading={isLoading}>
           <GameHeader
             title={gameName}
             rightActions={
-              <button className="px-2" onClick={onClose}>
-                ×
+              <button
+                type="button"
+                aria-label={`Close ${gameName}`}
+                className="px-2 text-xl leading-none"
+                onClick={onClose}
+              >
+                &times;
               </button>
             }
           />
-          <GameIframe src={src} />
+          <GameIframe
+            src={src}
+            title={gameName}
+            onLoad={() => setIsLoading(false)}
+          />
         </GameFrame>
       </div>
     </div>
   );
 }
+
+export default GameModal;
