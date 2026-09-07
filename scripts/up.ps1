@@ -3,9 +3,12 @@
     Builds and starts the full Mini Steam stack in Docker.
 
 .DESCRIPTION
-    Brings up SQL Server, the Azurite blob emulator, the API, the storefront and the three
-    games. On first run the API applies its EF Core migrations and seeds a development user
-    plus the three games, so the storefront has something to show.
+    Brings up the API, the Azurite blob emulator, the storefront and the three games. On
+    first run the API applies its EF Core migrations and seeds a development user plus the
+    three games, so the storefront has something to show.
+
+    The API stores data in SQLite on the api-data volume - no database server, and no
+    cloud account.
 
     Creates .env from .env.example if it does not exist yet.
 

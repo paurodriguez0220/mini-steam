@@ -10,7 +10,11 @@
 
     Rotates:
       1. Azure Storage account key (key1)
-      2. Azure SQL administrator password
+      2. Azure SQL administrator password - the application no longer uses this
+         database (see docs/decisions/001-use-sqlite.md), but the server may still
+         exist in Azure with the exposed password. Rotating is a stopgap; the real
+         fix is to decommission the server, which this script deliberately does not
+         automate.
       3. JWT signing key (regenerated locally, 64 random bytes, base64)
 
     Each step prompts before acting unless -Force is supplied.
@@ -92,21 +96,18 @@ if (Confirm-Step "Rotate storage account key1 on '$StorageAccount'?") {
 }
 
 # ------------------------------------------------------------- sql password
-if (Confirm-Step "Reset the Azure SQL administrator password on '$SqlServer'?") {
+if (Confirm-Step "Reset the Azure SQL administrator password on '$SqlServer'? (the app no longer uses this database)") {
     $sqlPassword = New-RandomKey
     Write-Host "Resetting SQL administrator password ..."
     az sql server update --resource-group $ResourceGroup --name $SqlServer --admin-password $sqlPassword --output none
     if ($LASTEXITCODE -ne 0) { throw "SQL password reset failed." }
 
-    $sqlConnectionString = "Server=tcp:$SqlServer.database.windows.net,1433;Initial Catalog=gamesappdb;Persist Security Info=False;User ID=$SqlAdminUser;Password=$sqlPassword;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
-
-    Write-Host "Publishing new SQL connection string to App Service ..."
-    az webapp config appsettings set --resource-group $ResourceGroup --name $AppServiceName --settings "ConnectionStrings__DefaultConnection=$sqlConnectionString" --output none
-    if ($LASTEXITCODE -ne 0) { throw "Failed to update App Service SQL setting." }
-
-    Write-Host "SQL password rotated." -ForegroundColor Green
-    Write-Host "Update your local user-secrets with the new connection string:" -ForegroundColor Yellow
-    Write-Host "  dotnet user-secrets set `"ConnectionStrings:DefaultConnection`" `"<new value>`" --project MiniSteam"
+    # The application moved to SQLite, so nothing is republished here - there is no
+    # consumer of this connection string left to update.
+    Write-Host "SQL password rotated. The exposed password no longer works." -ForegroundColor Green
+    Write-Host "The application does not use this server any more. Consider deleting it:" -ForegroundColor Yellow
+    Write-Host "  az sql server delete --resource-group $ResourceGroup --name $SqlServer"
+    Write-Host "Review the databases on it before deleting - this is not reversible."
 }
 
 # ---------------------------------------------------------------- jwt key

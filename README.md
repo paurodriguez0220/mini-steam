@@ -7,9 +7,10 @@ and runs them in an embedded iframe. One repository, five independently deployab
 
 ### Prerequisites
 
-- .NET 9 SDK
-- Node.js >= 20.19
-- Access to an Azure SQL database and an Azure Storage account (or local equivalents)
+- Docker Desktop (for the containerised stack), or
+- .NET 9 SDK and Node.js >= 20.19 to run the pieces directly
+
+No cloud account is required. The API uses SQLite and the stack ships a blob emulator.
 
 ### Run everything in Docker (recommended)
 
@@ -21,10 +22,10 @@ cd mini-steam
 ./scripts/up.ps1
 ```
 
-That builds and starts SQL Server, an Azurite blob emulator, the API, the storefront and
-all three games. On first start the API applies its EF Core migrations and seeds a
-development user plus the three games, so the storefront has real content immediately -
-no Azure resources and no firewall rules needed.
+That builds and starts the API, an Azurite blob emulator, the storefront and all three
+games. On first start the API applies its EF Core migrations and seeds a development user
+plus the three games, so the storefront has real content immediately - no Azure resources
+and no firewall rules needed.
 
 | Script | What it does |
 | --- | --- |
@@ -58,10 +59,14 @@ The API reads every secret from configuration - nothing is committed. Set them l
 user-secrets:
 
 ```bash
-dotnet user-secrets set "ConnectionStrings:DefaultConnection" "<azure-sql-connection-string>" --project MiniSteam
 dotnet user-secrets set "Jwt:Key" "<at-least-32-character-signing-key>" --project MiniSteam
 dotnet user-secrets set "AzureBlobStorage:ConnectionString" "<storage-connection-string>" --project MiniSteam
 ```
+
+`ConnectionStrings:DefaultConnection` is optional. When unset the API creates
+`ministeam.db` next to its binaries; set it to point elsewhere, for example
+`Data Source=/data/ministeam.db`. A relative path is resolved against the application
+directory, not the working directory.
 
 The API fails fast at startup with a descriptive error if any of these is missing.
 
@@ -102,7 +107,8 @@ API reference is served by Scalar at `/scalar/v1`; the OpenAPI document is at `/
 
 ## Architecture
 
-The API is layered as `Domain` / `Application` / `Infrastructure` / `Controllers` and uses:
+The API is layered as `Domain` / `Application` / `Infrastructure` / `Controllers`, stores
+its data in SQLite, and uses:
 
 - **Generic Repository + Generic Service** - `IRepository<T>` and `IService<TEntity, TDto>`,
   registered as open generics so a new entity needs no new plumbing.
@@ -123,11 +129,11 @@ API on mount, then loads the games catalogue and renders each game in an iframe.
 
 | Dependency | Purpose |
 | --- | --- |
-| Azure SQL Database | Games, users, profiles, ownership |
-| Azure Blob Storage | Game icons and user avatars |
+| SQLite | Games, users, profiles, ownership - a single file, see [ADR-001](docs/decisions/001-use-sqlite.md) |
+| Azure Blob Storage | Game icons and user avatars (Azurite emulates it locally) |
 | Azure App Service | Hosts the API |
 | Azure Static Web Apps | Hosts the storefront and each game |
-| `Microsoft.EntityFrameworkCore.SqlServer` | Data access and migrations |
+| `Microsoft.EntityFrameworkCore.Sqlite` | Data access and migrations |
 | `Microsoft.AspNetCore.Authentication.JwtBearer` | JWT bearer validation |
 | `BCrypt.Net-Next` | Password hashing |
 | `Azure.Storage.Blobs` | Blob upload and delete |
@@ -140,7 +146,7 @@ Names only - never commit values.
 
 | Setting | Purpose |
 | --- | --- |
-| `ConnectionStrings:DefaultConnection` | Azure SQL connection |
+| `ConnectionStrings:DefaultConnection` | SQLite file location. Optional; defaults beside the binaries |
 | `Jwt:Key` / `Jwt:Issuer` / `Jwt:Audience` / `Jwt:DurationInMinutes` | Token signing and validation |
 | `AzureBlobStorage:ConnectionString` | Blob account connection |
 | `AzureBlobStorage:GameIconsContainer` / `UserAvatarsContainer` | Container names |

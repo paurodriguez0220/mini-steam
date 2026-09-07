@@ -12,21 +12,13 @@ namespace MiniSteam.Infrastructure.Extensions
     public static class DependencyInjection
     {
         private const string ConnectionStringName = "DefaultConnection";
+        private const string DefaultDatabaseFileName = "ministeam.db";
 
         public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
-            var connectionString = configuration.GetConnectionString(ConnectionStringName);
+            var connectionString = ResolveConnectionString(configuration);
 
-            if (string.IsNullOrWhiteSpace(connectionString))
-            {
-                throw new InvalidOperationException(
-                    $"Connection string '{ConnectionStringName}' is not configured. " +
-                    "Set it with user-secrets locally (dotnet user-secrets set \"ConnectionStrings:DefaultConnection\" \"...\") " +
-                    "or in App Service configuration when deployed.");
-            }
-
-            services.AddDbContext<AppDbContext>(options =>
-                options.UseSqlServer(connectionString, sql => sql.EnableRetryOnFailure()));
+            services.AddDbContext<AppDbContext>(options => options.UseSqlite(connectionString));
 
             // Repositories
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
@@ -37,6 +29,35 @@ namespace MiniSteam.Infrastructure.Extensions
             services.AddScoped<IMapper<Game, GameDto>, GameMapper>();
 
             return services;
+        }
+
+        /// <summary>
+        /// Returns the configured connection string, defaulting to a database file next to
+        /// the application binaries.
+        /// </summary>
+        /// <remarks>
+        /// A relative SQLite path is resolved against the current working directory, which
+        /// differs between `dotnet run`, a published build and a container. Anchoring to
+        /// <see cref="AppContext.BaseDirectory"/> keeps every host pointing at one file.
+        /// </remarks>
+        private static string ResolveConnectionString(IConfiguration configuration)
+        {
+            var configured = configuration.GetConnectionString(ConnectionStringName);
+
+            if (string.IsNullOrWhiteSpace(configured))
+            {
+                var defaultPath = Path.Combine(AppContext.BaseDirectory, DefaultDatabaseFileName);
+                return $"Data Source={defaultPath}";
+            }
+
+            var builder = new Microsoft.Data.Sqlite.SqliteConnectionStringBuilder(configured);
+
+            if (!string.IsNullOrWhiteSpace(builder.DataSource) && !Path.IsPathRooted(builder.DataSource))
+            {
+                builder.DataSource = Path.Combine(AppContext.BaseDirectory, builder.DataSource);
+            }
+
+            return builder.ToString();
         }
     }
 }

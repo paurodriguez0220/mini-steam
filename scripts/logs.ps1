@@ -3,7 +3,7 @@
     Tails logs from the Mini Steam Docker stack.
 
 .PARAMETER Service
-    Limit output to one service: sql, azurite, api, ui, game-2048, game-snake,
+    Limit output to one service: azurite, api, ui, game-2048, game-snake,
     game-minesweeper. Omit for all services.
 
 .EXAMPLE
@@ -14,7 +14,7 @@
 #>
 [CmdletBinding()]
 param(
-    [ValidateSet('sql', 'azurite', 'api', 'ui', 'game-2048', 'game-snake', 'game-minesweeper')]
+    [ValidateSet('azurite', 'api', 'ui', 'game-2048', 'game-snake', 'game-minesweeper')]
     [string] $Service
 )
 

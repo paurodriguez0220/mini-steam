@@ -14,6 +14,12 @@ RUN dotnet publish MiniSteam/MiniSteam.csproj -c Release -o /app/publish /p:UseA
 FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS runtime
 WORKDIR /app
 
+# The SQLite file lives on a volume at /data. Create it while still root and hand
+# it to the app user - a volume inherits the ownership of its mount point in the
+# image, and the app cannot create the database in a root-owned directory.
+RUN mkdir -p /data && chown -R $APP_UID:$APP_UID /data
+VOLUME /data
+
 # Run as the non-root user the base image provides.
 USER $APP_UID
 
