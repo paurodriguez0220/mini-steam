@@ -11,11 +11,11 @@ export type Game = {
 
 type AppState = {
   token: string | null;
-  data: any | null;
+  data: unknown;
   games: Game[] | null;
   loading: boolean;
   setToken: (token: string) => void;
-  setData: (data: any) => void;
+  setData: (data: unknown) => void;
   setGames: (games: Game[]) => void;
   setLoading: (loading: boolean) => void;
   fetchToken: () => Promise<void>;
@@ -44,11 +44,16 @@ export const useAppStore = create<AppState>((set, get) => ({
 
     set({ loading: true });
     try {
-      const res = await fetch(`${API_URL}/api/auth/${API_AUTH_USERNAME}/${API_AUTH_PASSWORD}`, {
-        method: "GET",
+      const res = await fetch(`${API_URL}/api/auth/login`, {
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
-        }
+        },
+        // Credentials go in the body - never in the URL.
+        body: JSON.stringify({
+          email: API_AUTH_USERNAME,
+          password: API_AUTH_PASSWORD,
+        }),
       });
 
       if (!res.ok) throw new Error("Token request failed");
