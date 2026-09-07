@@ -127,6 +127,7 @@ Read the relevant file **before** writing code:
 | `api-design.md` | New or changed endpoints |
 | `security.md` | Auth, secrets, uploads, CORS, rate limiting |
 | `testing.md` | Any test work |
+| `docker-compose.md` | Compose, Dockerfiles, the local dev stack |
 | `github-actions.md` | Workflow changes |
 | `documentation.md` | README, CLAUDE.md, ADRs |
 | `git-workflow.md` | Branching, commits, PRs |
