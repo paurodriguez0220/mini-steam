@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - 'Ministeam/2048/**'
+      - '2048/2048/**'
   workflow_dispatch:
 
 jobs:

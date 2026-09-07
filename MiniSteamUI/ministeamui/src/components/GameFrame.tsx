@@ -1,20 +1,12 @@
-import React, { isValidElement, useState, useEffect } from "react";
-import type { ReactElement } from "react";
-
-type Props = {
+export interface GameFrameProps {
   children: React.ReactNode;
-};
+  /** Shows a spinner over the frame until the embedded game reports it has loaded. */
+  isLoading?: boolean;
+}
 
-export function GameFrame({ children }: Props) {
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const timer = setTimeout(() => setIsLoading(false), 1000);
-    return () => clearTimeout(timer);
-  }, []);
-
+export function GameFrame({ children, isLoading = false }: GameFrameProps) {
   return (
-    <div className="min-h-screen flex items-center justify-center p-2 sm:p-4 relative">
+    <div className="h-full flex items-center justify-center p-2 sm:p-4 relative">
       {isLoading && (
         <div className="absolute inset-0 flex items-center justify-center bg-white/80 z-50">
           <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-[#ff4b5c]"></div>
@@ -26,17 +18,7 @@ export function GameFrame({ children }: Props) {
           isLoading ? "pointer-events-none opacity-50" : ""
         }`}
       >
-        {React.Children.map(children, (child) => {
-          if (isValidElement(child)) {
-            const type = child.type;
-            if (typeof type === "function" && type.name === "GameIframe") {
-              return React.cloneElement(child as ReactElement<any>, {
-                onLoad: () => setIsLoading(false),
-              });
-            }
-          }
-          return child;
-        })}
+        {children}
       </div>
     </div>
   );

@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using MiniSteam.Application.Interfaces;
 using MiniSteam.Infrastructure.Data;
@@ -19,7 +19,7 @@ namespace MiniSteam.Infrastructure.Repositories
             _config = config;
         }
 
-        public async Task<string> AuthenticateAsync(string email, string password)
+        public async Task<string?> AuthenticateAsync(string email, string password)
         {
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
             if (user == null || !BCrypt.Net.BCrypt.Verify(password, user.PasswordHash))

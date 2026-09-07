@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Configuration;
+using MiniSteam.Infrastructure.Data;
 using MiniSteam.Infrastructure.Extensions;
 using MiniSteam.Middleware;
 using Scalar.AspNetCore;
@@ -18,6 +19,9 @@ builder.Services.AddBlobStorage(builder.Configuration);
 
 
 var app = builder.Build();
+
+// Development only: applies migrations and seeds the local stack.
+await app.MigrateAndSeedAsync();
 
 app.UseGlobalExceptionHandler();
 app.UseBasePathRedirect();

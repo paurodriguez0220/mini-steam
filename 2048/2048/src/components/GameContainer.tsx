@@ -3,27 +3,26 @@ import { Board } from "./Board";
 import type { Tile } from "../types";
 import { addRandomTile, moveTiles, boardChanged, isGameOver } from "../utils/board";
 
+// Builds the opening board: an empty grid seeded with two random tiles.
+// Kept outside the component so it can be used as a lazy useState initializer -
+// seeding state in a mount effect causes an extra render pass.
+function createInitialBoard(): { tiles: Tile[]; nextId: number } {
+  let t: Tile[] = [];
+  let id = 1;
+
+  let r = addRandomTile(t, id);
+  t = r.tiles;
+  id = r.nextId;
+
+  r = addRandomTile(t, id);
+  return { tiles: r.tiles, nextId: r.nextId };
+}
+
 export function GameContainer() {
-  const [tiles, setTiles] = useState<Tile[]>([]);
-  const [nextId, setNextId] = useState(1);
+  const [initialBoard] = useState(createInitialBoard);
+  const [tiles, setTiles] = useState<Tile[]>(initialBoard.tiles);
+  const [nextId, setNextId] = useState(initialBoard.nextId);
   const [score, setScore] = useState(0);
-
-  // Initialize 2 tiles
-  useEffect(() => {
-    let t: Tile[] = [];
-    let id = 1;
-
-    let r = addRandomTile(t, id);
-    t = r.tiles;
-    id = r.nextId;
-
-    r = addRandomTile(t, id);
-    t = r.tiles;
-    id = r.nextId;
-
-    setTiles(t);
-    setNextId(id);
-  }, []);
 
   // Clear spawn after animation
   useEffect(() => {

@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - 'MiniSteam/MiniSteamUI/**'
+      - 'MiniSteamUI/ministeamui/**'
   workflow_dispatch:
 
 jobs:
