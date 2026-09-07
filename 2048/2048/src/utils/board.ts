@@ -46,10 +46,10 @@ export function moveTiles(
     }
 
     // Slide and merge
-    let compacted = line.filter(Boolean) as Tile[];
+    const compacted = line.filter(Boolean) as Tile[];
     if (direction === "right" || direction === "down") compacted.reverse();
 
-    const merged: Tile[] = [];
+    const merged: (Tile | null)[] = [];
     let skip = false;
     for (let j = 0; j < compacted.length; j++) {
       if (skip) {
@@ -67,7 +67,7 @@ export function moveTiles(
       }
     }
 
-    while (merged.length < SIZE) merged.push(null as any);
+    while (merged.length < SIZE) merged.push(null);
     if (direction === "right" || direction === "down") merged.reverse();
 
     // Assign exact positions; **don’t change row/col if already correct**
