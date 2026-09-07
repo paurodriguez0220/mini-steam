@@ -11,7 +11,7 @@ independently deployable apps: a .NET 9 REST API and four React + Vite front-end
 
 | App | Stack | Role |
 | --- | --- | --- |
-| `MiniSteam` | .NET 9 Web API, EF Core 9, SQL Server | Games/users/auth API, JWT issuance, blob uploads |
+| `MiniSteam` | .NET 9 Web API, EF Core 9, SQLite | Games/users/auth API, JWT issuance, blob uploads |
 | `MiniSteamUI` | React 19, Vite, Tailwind 4, Zustand, React Router | Storefront; lists games, embeds them via `<iframe>` |
 | `2048`, `Snake`, `Minesweeper` | React 19, Vite, Tailwind 4 | Standalone games, each its own Static Web App |
 
@@ -45,7 +45,7 @@ mini-steam/
 |   |-- Middleware/
 |   `-- Migrations/        # EF Core migrations
 |-- docker/                # shared nginx config for the SPA images
-|-- docs/                  # runbooks, tasks (queue/defined/finished), issues
+|-- docs/                  # decisions (ADRs), runbooks, tasks, issues
 |-- scripts/               # up / down / logs, secret rotation, SQL firewall
 |-- docker-compose.yml     # full local stack
 |-- MiniSteamUI/ministeamui/   # storefront React app
@@ -64,7 +64,7 @@ The whole stack runs in Docker - prefer it over starting services by hand.
 
 | Command | What it does |
 | --- | --- |
-| `./scripts/up.ps1` | Build and start the full stack (SQL, Azurite, API, storefront, games) |
+| `./scripts/up.ps1` | Build and start the full stack (API, Azurite, storefront, games) |
 | `./scripts/up.ps1 -Rebuild` | Same, ignoring the build cache |
 | `./scripts/logs.ps1 -Service api` | Tail one service's logs |
 | `./scripts/down.ps1` | Stop the stack (`-Purge` also drops the volumes) |
@@ -92,8 +92,9 @@ There is **no test suite in this repository yet** — tracked in
 `docs/tasks/queue/add-test-suites.md`. Until it exists, verify changes with
 `dotnet build` and `npm run build`, and say plainly that tests were not run.
 
-Running the API against **Azure SQL** (rather than the local container) requires this
-machine's public IP on the server firewall: `./scripts/add-sql-firewall-rule.ps1`.
+The API stores data in SQLite. In Docker the file lives on the `api-data` volume at
+`/data/ministeam.db`; run `./scripts/down.ps1 -Purge` to reset to a clean, re-seeded
+database. See `docs/decisions/001-use-sqlite.md` for why.
 
 ## Configuration
 
@@ -101,7 +102,7 @@ Names only — never commit values.
 
 | Setting | Where | Purpose |
 | --- | --- | --- |
-| `ConnectionStrings:DefaultConnection` | user-secrets / App Service config | Azure SQL connection |
+| `ConnectionStrings:DefaultConnection` | env / App Service config | SQLite file location; optional, defaults beside the binaries |
 | `Jwt:Key`, `Jwt:Issuer`, `Jwt:Audience`, `Jwt:DurationInMinutes` | user-secrets / App Service config | Token signing |
 | `AzureBlobStorage:ConnectionString` | user-secrets / App Service config | Game icon + avatar uploads |
 | `Cors:AllowedOrigins` | `appsettings.json` | Allowed storefront origins |
@@ -136,6 +137,8 @@ Read the relevant file **before** writing code:
   or API tokens in `appsettings*.json`, `.env`, or C# source. Use user-secrets locally and
   App Service / Static Web App configuration in Azure.
 - **Never hardcode a connection string in C#.** It must come from `IConfiguration`.
+- **Never reintroduce a cloud database for local development.** The stack must run with
+  no cloud account - see `docs/decisions/001-use-sqlite.md`.
 - **Never push to a remote outside the `paurodriguez0220` GitHub account.**
 - **Never commit build or IDE artifacts** - `bin/`, `obj/`, `dist/`, `node_modules/`, `.vs/`,
   `*.suo`, `.vite/`.
