@@ -3,7 +3,5 @@ export type Tile = {
   value: number;
   row: number;
   col: number;
-  prevRow?: number;
-  prevCol?: number;
   spawn?: boolean;
 };

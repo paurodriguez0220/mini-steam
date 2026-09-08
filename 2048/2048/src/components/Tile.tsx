@@ -1,39 +1,56 @@
 import type { Tile as TileType } from "../types";
+import { TILE_PX, TILE_STEP_PX } from "../board-layout";
 
-type Props = {
+export interface TileProps {
   tile: TileType;
+}
+
+/**
+ * The 2048 colour ramp, as shared-theme tokens (see the @theme block in
+ * index.css). Light beige through orange into gold, with the ink flipping from
+ * dark to light at the 8-tile.
+ */
+const TILE_PALETTE: Record<number, string> = {
+  2: "bg-tile-2 text-tile-2-ink",
+  4: "bg-tile-4 text-tile-4-ink",
+  8: "bg-tile-8 text-tile-8-ink",
+  16: "bg-tile-16 text-tile-16-ink",
+  32: "bg-tile-32 text-tile-32-ink",
+  64: "bg-tile-64 text-tile-64-ink",
+  128: "bg-tile-128 text-tile-128-ink",
+  256: "bg-tile-256 text-tile-256-ink",
+  512: "bg-tile-512 text-tile-512-ink",
+  1024: "bg-tile-1024 text-tile-1024-ink",
+  2048: "bg-tile-2048 text-tile-2048-ink",
 };
 
-// Map tile values to background and text colors
-const COLORS: Record<number, { bg: string; text: string }> = {
-  2: { bg: "bg-[#EEE4DA]", text: "text-[#776E65]" },
-  4: { bg: "bg-[#EDE0C8]", text: "text-[#776E65]" },
-  8: { bg: "bg-[#F2B179]", text: "text-[#F9F6F2]" },
-  16: { bg: "bg-[#F59563]", text: "text-[#F9F6F2]" },
-  32: { bg: "bg-[#F67C60]", text: "text-[#F9F6F2]" },
-  64: { bg: "bg-[#F65E3B]", text: "text-[#F9F6F2]" },
-  128: { bg: "bg-[#EDCF73]", text: "text-[#F9F6F2]" },
-  256: { bg: "bg-[#EDCC62]", text: "text-[#F9F6F2]" },
-  512: { bg: "bg-[#EDC850]", text: "text-[#F9F6F2]" },
-  1024: { bg: "bg-[#EDC53F]", text: "text-[#F9F6F2]" },
-  2048: { bg: "bg-[#EDC22D]", text: "text-[#F9F6F2]" },
-};
+/** Anything past 2048 - reachable in real play, so it gets a real token. */
+const TILE_PALETTE_MAX = "bg-tile-max text-tile-max-ink";
 
-// Fallback for very large numbers
-const getTileColor = (value: number) => COLORS[value] ?? { bg: "bg-black", text: "text-white" };
+/** Four- and five-digit values overflow an 80px tile at the base size. */
+function valueTextClass(value: number): string {
+  if (value >= 16384) return "text-xl";
+  if (value >= 1024) return "text-2xl";
+  if (value >= 128) return "text-3xl";
+  return "text-4xl";
+}
 
-export const Tile = ({ tile }: Props) => {
-  const { bg, text } = getTileColor(tile.value);
+export function Tile({ tile }: TileProps) {
+  const palette = TILE_PALETTE[tile.value] ?? TILE_PALETTE_MAX;
 
   return (
     <div
-      className={`absolute w-20 h-20 flex items-center justify-center font-bold text-4xl rounded transition-all duration-300 transform ${bg} ${text} ${tile.spawn ? "scale-0 animate-pop" : "scale-100"}`}
+      className={`absolute flex items-center justify-center rounded-sm font-display font-bold tabular-nums transition-all duration-300 ease-spring ${palette} ${valueTextClass(
+        tile.value,
+      )} ${tile.spawn ? "animate-pop-in" : ""}`}
       style={{
-        top: tile.row * 84 + "px",
-        left: tile.col * 84 + "px",
+        width: TILE_PX,
+        height: TILE_PX,
+        top: tile.row * TILE_STEP_PX,
+        left: tile.col * TILE_STEP_PX,
       }}
     >
       {tile.value}
     </div>
   );
-};
+}

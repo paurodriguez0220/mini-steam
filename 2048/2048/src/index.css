@@ -1,14 +1,48 @@
+/* Fonts must be the first rule in the document: CSS drops an @import that
+   follows other rules, and the shared theme is inlined after Tailwind. */
+@import url("https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Nunito:wght@400..900&display=swap");
+
 @import "tailwindcss";
+@import "../../../shared/theme.css";
 
-body {
-  margin: 0;
-}
+/* --------------------------------------------------------------------------
+   2048 keeps its own board identity: the classic light-beige -> orange -> gold
+   ramp, warmed a few degrees toward the playroom palette. These are the only
+   colours in the app that are NOT shared tokens, because the board is the
+   game's signature and must stay recognisable.
 
-@keyframes scale-up {
-  from { transform: scale(0); }
-  to { transform: scale(1); }
-}
+   Deliberately identical in light and dark mode. The board reads as a physical
+   object sitting on the page - the page around it flips, the board does not.
+   That is also why the ink values are literal hex rather than var(--color-bg):
+   a shared token would flip underneath the ramp and break the contrast pairing.
+   -------------------------------------------------------------------------- */
+@theme {
+  --color-board-frame: #7f6a5c;
 
-.animate-scale-up {
-  animation: scale-up 0.2s ease forwards;
+  --color-tile-2: #f7ece0;
+  --color-tile-2-ink: #6e5f57;
+  --color-tile-4: #f6e3c9;
+  --color-tile-4-ink: #6e5f57;
+  --color-tile-8: #f6b57c;
+  --color-tile-8-ink: #fff7f0;
+  --color-tile-16: #f59a62;
+  --color-tile-16-ink: #fff7f0;
+  --color-tile-32: #f38055;
+  --color-tile-32-ink: #fff7f0;
+  --color-tile-64: #ef603c;
+  --color-tile-64-ink: #fff7f0;
+  --color-tile-128: #f0cf72;
+  --color-tile-128-ink: #fff7f0;
+  --color-tile-256: #f0c95c;
+  --color-tile-256-ink: #fff7f0;
+  --color-tile-512: #f1c248;
+  --color-tile-512-ink: #fff7f0;
+  --color-tile-1024: #f2bb36;
+  --color-tile-1024-ink: #fff7f0;
+  --color-tile-2048: #f0a91b;
+  --color-tile-2048-ink: #fff7f0;
+
+  /* Reachable in real play: anything past 2048 (4096, 8192, ...). */
+  --color-tile-max: #c9342a;
+  --color-tile-max-ink: #fff7f0;
 }

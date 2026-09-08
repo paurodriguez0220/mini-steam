@@ -1,15 +1,24 @@
 import { Tile } from "./Tile";
 import type { Tile as TileType } from "../types";
+import { BOARD_FRAME_PX, BOARD_PADDING_PX } from "../board-layout";
 
-export function Board({ tiles }: { tiles: TileType[] }) {
+export interface BoardProps {
+  tiles: TileType[];
+}
+
+export function Board({ tiles }: BoardProps) {
   return (
-    <div className="bg-[#776E66] p-2">
-        <div className="relative w-[336px] h-[336px] bg-[#776E66] rounded">
-        {tiles.map((t) => (
-            <Tile key={t.id} tile={t} />
-        ))}
-        </div>
+    <div
+      className="relative rounded-lg bg-board-frame shadow-soft-2"
+      style={{
+        width: BOARD_FRAME_PX,
+        height: BOARD_FRAME_PX,
+        padding: BOARD_PADDING_PX,
+      }}
+    >
+      {tiles.map((tile) => (
+        <Tile key={tile.id} tile={tile} />
+      ))}
     </div>
-
   );
 }

@@ -1,12 +1,13 @@
 import type { Tile } from "../types";
 
-const SIZE = 4;
+/** Cells per side. The board is 4x4; board-layout.ts derives its pixel geometry from this. */
+export const BOARD_SIZE = 4;
 
 // Add random tile
 export function addRandomTile(tiles: Tile[], nextId: number): { tiles: Tile[]; nextId: number } {
   const empty: [number, number][] = [];
-  for (let r = 0; r < SIZE; r++) {
-    for (let c = 0; c < SIZE; c++) {
+  for (let r = 0; r < BOARD_SIZE; r++) {
+    for (let c = 0; c < BOARD_SIZE; c++) {
       if (!tiles.some((t) => t.row === r && t.col === c)) empty.push([r, c]);
     }
   }
@@ -34,9 +35,9 @@ export function moveTiles(
   let gained = 0;
   const newTiles: Tile[] = [];
 
-  for (let i = 0; i < SIZE; i++) {
-    // Build line of SIZE cells
-    const line: (Tile | null)[] = Array(SIZE).fill(null);
+  for (let i = 0; i < BOARD_SIZE; i++) {
+    // Build line of BOARD_SIZE cells
+    const line: (Tile | null)[] = Array(BOARD_SIZE).fill(null);
     for (const t of tiles) {
       if (direction === "left" || direction === "right") {
         if (t.row === i) line[t.col] = { ...t };
@@ -67,11 +68,11 @@ export function moveTiles(
       }
     }
 
-    while (merged.length < SIZE) merged.push(null);
+    while (merged.length < BOARD_SIZE) merged.push(null);
     if (direction === "right" || direction === "down") merged.reverse();
 
     // Assign exact positions; **don’t change row/col if already correct**
-    for (let j = 0; j < SIZE; j++) {
+    for (let j = 0; j < BOARD_SIZE; j++) {
       const t = merged[j];
       if (!t) continue;
       const row = direction === "left" || direction === "right" ? i : j;
@@ -102,7 +103,7 @@ export const boardChanged = (a: Tile[], b: Tile[]) => {
 };
 
 
-export const isGameOver = (tiles: Tile[], size = 4): boolean => {
+export const isGameOver = (tiles: Tile[], size = BOARD_SIZE): boolean => {
   if (tiles.length < size * size) return false;
 
   const grid: number[][] = Array.from({ length: size }, () => Array(size).fill(0));
