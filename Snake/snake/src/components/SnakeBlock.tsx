@@ -15,7 +15,9 @@ export default function SnakeBlock({ position, size, isHead = false }: SnakeBloc
         height: size,
         left: position.x * size,
         top: position.y * size,
-        backgroundColor: "#4A90E2", // blue snake
+        // Tokens, not literals - see the @theme block in index.css for why the
+        // colour comes through var() while the geometry stays inline.
+        backgroundColor: "var(--color-snake)",
         borderRadius: "50%",
         display: "flex",
         alignItems: "center",
@@ -28,7 +30,7 @@ export default function SnakeBlock({ position, size, isHead = false }: SnakeBloc
             style={{
               width: size * 0.2,
               height: size * 0.2,
-              backgroundColor: "white",
+              backgroundColor: "var(--color-snake-eye)",
               borderRadius: "50%",
               position: "absolute",
               left: size * 0.25,
@@ -39,7 +41,7 @@ export default function SnakeBlock({ position, size, isHead = false }: SnakeBloc
             style={{
               width: size * 0.2,
               height: size * 0.2,
-              backgroundColor: "white",
+              backgroundColor: "var(--color-snake-eye)",
               borderRadius: "50%",
               position: "absolute",
               right: size * 0.25,

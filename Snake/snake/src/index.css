@@ -1,1 +1,36 @@
+/* Fonts must be the first rule in the document: CSS drops an @import that
+   follows other rules, and the shared theme is inlined after Tailwind. */
+@import url("https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Nunito:wght@400..900&display=swap");
+
 @import "tailwindcss";
+@import "../../../shared/theme.css";
+
+/* Snake keeps its own board identity - a green checkerboard, a distinctly
+   coloured snake and a distinctly coloured apple - but every value is warmed
+   toward the playroom palette so the board sits inside the store chrome
+   instead of fighting it.
+
+   These are declared with @theme so Tailwind emits them as real CSS custom
+   properties. That matters: the board is drawn with inline `style` objects
+   (the geometry is computed from `cellSize`), and inline styles beat utility
+   classes on specificity. So the components keep their inline geometry and
+   reference these tokens with var(), rather than losing a specificity fight
+   with `bg-board-light`.
+
+   Deliberately NOT overridden in `.dark`: the board is the game's identity and
+   should read the same in both themes, the way a physical board would. */
+@theme {
+  /* checkerboard */
+  --color-board-light: #d7e7a6;
+  --color-board-dark: #bdd689;
+  --color-board-edge: #8fae5c;
+
+  /* the snake - stays blue, pulled a shade deeper for contrast on warm green */
+  --color-snake: #3f7fdd;
+  --color-snake-eye: #fff7f0;
+
+  /* the food - the playroom red, with a warm highlight ring and a mint leaf */
+  --color-food: #e8352e;
+  --color-food-ring: #ffb2ab;
+  --color-food-leaf: #1faa63;
+}
