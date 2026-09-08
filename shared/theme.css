@@ -156,6 +156,22 @@
     radial-gradient(90% 60% at 100% 0%, rgba(74, 34, 29, 0.85) 0%, rgba(74, 34, 29, 0) 55%);
 }
 
+/* Embedded in the storefront, the host already provides the page surface, so a
+   game must not paint its own on top of it. */
+html.embedded,
+html.embedded body {
+  background: transparent;
+}
+
+html.embedded .page-bg {
+  background-color: transparent;
+  background-image: none;
+}
+
+html.embedded .confetti {
+  display: none;
+}
+
 /* Confetti dots, faded out toward the bottom with a mask. */
 @utility confetti {
   position: absolute;

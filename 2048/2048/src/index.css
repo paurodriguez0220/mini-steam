@@ -17,7 +17,11 @@
    a shared token would flip underneath the ramp and break the contrast pairing.
    -------------------------------------------------------------------------- */
 @theme {
-  --color-board-frame: #7f6a5c;
+  /* Warm tan rather than the original cold brown, so the board belongs to the
+     playroom palette. The wells are a shade deeper so an empty board still
+     reads as a grid instead of a flat slab. */
+  --color-board-frame: #d9c4b2;
+  --color-board-well: #c8ae9a;
 
   --color-tile-2: #f7ece0;
   --color-tile-2-ink: #6e5f57;
