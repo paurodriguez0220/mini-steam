@@ -11,9 +11,9 @@ independently deployable apps: a .NET 9 REST API and four React + Vite front-end
 
 | App | Stack | Role |
 | --- | --- | --- |
-| `MiniSteam` | .NET 9 Web API, EF Core 9, SQLite | Games/users/auth API, JWT issuance, blob uploads |
+| `MiniSteam` | .NET 9 Web API, EF Core 9, SQLite | Games/users/auth API, JWT issuance, blob uploads, score leaderboards |
 | `MiniSteamUI` | React 19, Vite, Tailwind 4, Zustand, React Router | Storefront; lists games, embeds them via `<iframe>` |
-| `2048`, `Snake`, `Minesweeper` | React 19, Vite, Tailwind 4 | Standalone games, each its own Static Web App |
+| `2048`, `Snake`, `Minesweeper` | React 19, Vite, Tailwind 4 | Standalone games, each its own Static Web App; each posts its score up to the storefront |
 
 The API follows a layered structure (`Domain` / `Application` / `Infrastructure` / `Controllers`):
 
@@ -44,11 +44,16 @@ mini-steam/
 |   |-- Controllers/
 |   |-- Middleware/
 |   `-- Migrations/        # EF Core migrations
+|-- shared/                # imported by ALL four front-ends (see docs/decisions/003)
+|   |-- theme.css         # the playroom design tokens, as a Tailwind @theme block
+|   |-- game-score.ts     # the score envelope a game posts to the storefront
+|   `-- game-theme.ts     # applies ?theme= inside an embedded game
 |-- docker/                # shared nginx config for the SPA images
 |-- docs/                  # decisions (ADRs), runbooks, tasks, issues
 |-- scripts/               # up / down / logs, secret rotation, SQL firewall
 |-- docker-compose.yml     # full local stack
 |-- MiniSteamUI/ministeamui/   # storefront React app
+|   `-- src/routes/            # one file per route: store, game detail, play, leaderboard
 |-- 2048/2048/                 # game
 |-- Snake/snake/               # game
 `-- Minesweeper/minesweeper/   # game
@@ -108,6 +113,7 @@ Names only — never commit values.
 | `Cors:AllowedOrigins` | `appsettings.json` | Allowed storefront origins |
 | `RateLimiting:WindowSeconds`, `RateLimiting:MaxRequests` | `appsettings.json` | Fixed-window rate limit |
 | `VITE_API_URL` | `MiniSteamUI/ministeamui/.env.local` | API base URL for the storefront |
+| `VITE_STOREFRONT_ORIGIN` | compose build arg / SWA config | Origin a game posts its score messages to |
 
 Secrets committed before 2026-09-07 are in git history and are considered compromised.
 Rotation procedure: `docs/runbooks/rotate-secrets.md`.
@@ -152,7 +158,19 @@ Read the relevant file **before** writing code:
 - **Never run `DevelopmentSeeder` outside Development.** Production migrations are
   deliberate and reviewed, never applied automatically at startup.
 - **Never commit `.env`.** Only `.env.example`, with names and safe local defaults.
+- **Never build a front-end image from its own folder.** All four SPAs import from
+  `shared/`, which sits above them, so every image builds with `context: .` from the
+  repository root and an explicit `dockerfile:` path - see `docs/decisions/003-shared-design-tokens.md`.
+- **Never duplicate a design token into an app.** Game-specific tokens (2048's tile ramp,
+  Minesweeper's bevel) belong in that app's `index.css` on top of the shared layer; anything
+  shared belongs in `shared/theme.css` only.
+- **Never put a font `@import` in `shared/theme.css`.** CSS requires `@import` to precede
+  all other rules, and the shared file is inlined after Tailwind's output, so the browser
+  silently drops it. Font imports go at the top of each app's `index.css`.
+- **Never trust a `postMessage` from a game without checking `event.origin`** against the
+  catalogue's game origins, and never normalise one game's score onto another's scale -
+  see `docs/decisions/002-unified-game-scoring.md`.
 
 ---
-*Maintained by paurodriguez0220 - Last updated: 2026-09-07*
+*Maintained by paurodriguez0220 - Last updated: 2026-09-08*
 *Standards: https://github.com/paurodriguez0220/standards-docs*
