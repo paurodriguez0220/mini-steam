@@ -1,4 +1,5 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+using MiniSteam.Domain.Constants;
 using MiniSteam.Domain.Entities;
 
 namespace MiniSteam.Infrastructure.Data
@@ -31,6 +32,12 @@ namespace MiniSteam.Infrastructure.Data
 
             await SeedUserAsync(db, config, logger);
             await SeedGamesAsync(db, config, logger);
+
+            // Scores reference the user and the games by id, so those rows have to exist
+            // before the score seed can point at them.
+            await db.SaveChangesAsync();
+
+            await SeedScoresAsync(db, logger);
 
             await db.SaveChangesAsync();
             logger.LogInformation("Development seed complete.");
@@ -112,5 +119,79 @@ namespace MiniSteam.Infrastructure.Data
                 }
             }
         }
+
+        /// <summary>
+        /// Inserts a handful of finished runs so the storefront has a board to render before
+        /// anyone has played anything.
+        /// </summary>
+        /// <remarks>
+        /// Only runs when the table is empty, so a local database that already has real
+        /// scores is never touched. The Minesweeper rows deliberately include a loss - it is
+        /// the fastest row in the table and must not appear on an ascending board.
+        /// </remarks>
+        private static async Task SeedScoresAsync(AppDbContext db, ILogger logger)
+        {
+            if (await db.Scores.AnyAsync())
+            {
+                return;
+            }
+
+            var user = await db.Users.OrderBy(u => u.Id).FirstOrDefaultAsync();
+            if (user is null)
+            {
+                logger.LogInformation("No seeded user - skipping score seed.");
+                return;
+            }
+
+            var gameIdsByTitle = await db.Games.ToDictionaryAsync(g => g.Title, g => g.Id);
+            var now = DateTime.UtcNow;
+
+            var seeds = new ScoreSeed[]
+            {
+                new("2048", ScoreValues.MetricKinds.Points, 3_284, ScoreValues.Outcomes.Lost, null, now.AddDays(-6)),
+                new("2048", ScoreValues.MetricKinds.Points, 11_520, ScoreValues.Outcomes.Lost, null, now.AddDays(-4)),
+                new("Snake", ScoreValues.MetricKinds.Points, 14, ScoreValues.Outcomes.Lost, null, now.AddDays(-5)),
+                new("Snake", ScoreValues.MetricKinds.Points, 31, ScoreValues.Outcomes.Lost, null, now.AddDays(-2)),
+                new("Minesweeper", ScoreValues.MetricKinds.Seconds, 38, ScoreValues.Outcomes.Won, ScoreValues.Difficulties.Easy, now.AddDays(-5)),
+                new("Minesweeper", ScoreValues.MetricKinds.Seconds, 122, ScoreValues.Outcomes.Won, ScoreValues.Difficulties.Medium, now.AddDays(-3)),
+                new("Minesweeper", ScoreValues.MetricKinds.Seconds, 264, ScoreValues.Outcomes.Won, ScoreValues.Difficulties.Hard, now.AddDays(-1)),
+                new("Minesweeper", ScoreValues.MetricKinds.Seconds, 3, ScoreValues.Outcomes.Lost, ScoreValues.Difficulties.Hard, now.AddHours(-6))
+            };
+
+            var seeded = 0;
+
+            foreach (var seed in seeds)
+            {
+                if (!gameIdsByTitle.TryGetValue(seed.GameTitle, out var gameId))
+                {
+                    continue;
+                }
+
+                db.Scores.Add(new Score
+                {
+                    GameId = gameId,
+                    UserId = user.Id,
+                    MetricKind = seed.MetricKind,
+                    Value = seed.Value,
+                    BetterIs = ScoreValues.RequiredDirectionFor(seed.MetricKind)!,
+                    Difficulty = seed.Difficulty,
+                    Outcome = seed.Outcome,
+                    AchievedAt = seed.AchievedAt
+                });
+
+                seeded++;
+            }
+
+            logger.LogInformation("Seeded {Count} development scores", seeded);
+        }
+
+        /// <summary>A score to seed, keyed by game title because ids are assigned at runtime.</summary>
+        private sealed record ScoreSeed(
+            string GameTitle,
+            string MetricKind,
+            int Value,
+            string Outcome,
+            string? Difficulty,
+            DateTime AchievedAt);
     }
 }

@@ -11,5 +11,6 @@
         // Navigation
         public UserProfile Profile { get; set; } = null!;
         public ICollection<UserGame> Games { get; set; } = new List<UserGame>();
+        public ICollection<Score> Scores { get; set; } = new List<Score>();
     }
 }

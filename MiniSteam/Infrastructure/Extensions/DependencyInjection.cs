@@ -22,11 +22,18 @@ namespace MiniSteam.Infrastructure.Extensions
 
             // Repositories
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+            services.AddScoped<IScoreRepository, ScoreRepository>();
             services.AddScoped<IService<Game, GameDto>, Service<Game, GameDto>>();
             services.AddScoped<IAuthService, AuthService>();
 
+            // Scores are append-only and ranked per game, so they get a dedicated service
+            // rather than the generic CRUD one - see ScoresController for what that would
+            // otherwise expose.
+            services.AddScoped<IScoreService, ScoreService>();
+
             // Mappers
             services.AddScoped<IMapper<Game, GameDto>, GameMapper>();
+            services.AddScoped<IMapper<Score, ScoreDto>, ScoreMapper>();
 
             return services;
         }

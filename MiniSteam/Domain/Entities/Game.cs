@@ -8,5 +8,6 @@
         public required string IconPath { get; set; }
         public required string Category { get; set; }
         public ICollection<UserGame> Owners { get; set; } = new List<UserGame>();
+        public ICollection<Score> Scores { get; set; } = new List<Score>();
     }
 }
