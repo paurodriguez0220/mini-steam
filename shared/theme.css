@@ -1,0 +1,252 @@
+/* ==========================================================================
+   Mini Steam - shared design tokens ("playroom")
+   --------------------------------------------------------------------------
+   One source of truth for the storefront and all three games. Every app
+   imports this file from its own src/index.css, immediately after
+   the Tailwind import - the relative depth varies per app:
+
+       @import "tailwindcss";
+       @import "../../shared/theme.css";
+
+   Because the apps build independently (each one has its own Dockerfile),
+   every image must COPY this file in alongside the app source. See the
+   Dockerfile in each app.
+
+   The Google Fonts import deliberately lives in each app's index.css rather
+   than here. CSS requires @import to precede all other rules, and by the
+   time this file is inlined Tailwind has already emitted its own rules -
+   so a font @import here is dropped by the browser. Each index.css starts:
+
+       @import url("https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Nunito:wght@400..900&display=swap");
+       @import "tailwindcss";
+       @import "../../shared/theme.css";
+
+   Tokens are declared with @theme so Tailwind generates utilities from them
+   (bg-primary, text-ink-soft, rounded-lg, shadow-soft-2, font-display,
+   ease-spring, animate-pop-in, ...). Prefer the utility over var().
+
+   Dark mode overrides the same variables in one .dark block, so components
+   need almost no `dark:` prefixes - the tokens change underneath them.
+   ========================================================================== */
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  /* ground + ink */
+  --color-bg: #fff7f0;
+  --color-bg-2: #ffece0;
+  --color-surface: #ffffff;
+  --color-surface-2: #fffaf6;
+  --color-ink: #221a16;
+  --color-ink-soft: #6e5f57;
+  --color-line: #efe1d6;
+
+  /* the one confident primary */
+  --color-primary: #e8352e;
+  --color-primary-deep: #b8231d;
+  --color-primary-ink: #ffffff;
+  --color-primary-soft: #ffe2de;
+
+  /* soft secondary tints */
+  --color-mint: #1faa63;
+  --color-mint-soft: #cdf2df;
+  --color-sky: #2f7ff0;
+  --color-sky-soft: #d8e7ff;
+  --color-butter: #f0a91b;
+  --color-butter-soft: #ffedc4;
+  --color-grape: #6f52f4;
+  --color-grape-soft: #e5deff;
+
+  /* shape */
+  --radius-sm: 14px;
+  --radius-md: 22px;
+  --radius-lg: 32px;
+  --radius-xl: 44px;
+
+  /* soft layered shadows */
+  --shadow-soft-1: 0 1px 0 rgba(34, 26, 22, 0.04), 0 6px 14px -8px rgba(34, 26, 22, 0.28);
+  --shadow-soft-2: 0 2px 0 rgba(34, 26, 22, 0.05), 0 18px 34px -18px rgba(34, 26, 22, 0.36);
+  --shadow-soft-3: 0 3px 0 rgba(34, 26, 22, 0.06), 0 44px 70px -34px rgba(34, 26, 22, 0.46);
+  --shadow-soft-press: 0 1px 0 rgba(34, 26, 22, 0.06), 0 3px 8px -4px rgba(34, 26, 22, 0.3);
+
+  /* type */
+  --font-display: "Bricolage Grotesque", "Trebuchet MS", sans-serif;
+  --font-text: "Nunito", "Trebuchet MS", sans-serif;
+
+  /* motion */
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-soft: cubic-bezier(0.2, 0.8, 0.3, 1);
+
+  --animate-pop-in: pop-in 460ms var(--ease-spring) both;
+  --animate-fade: fade 220ms var(--ease-soft) both;
+  --animate-boing: boing 1s var(--ease-spring) infinite;
+  --animate-shimmer: shimmer 1.5s linear infinite;
+  --animate-drop: drop 260ms var(--ease-spring) both;
+}
+
+/* Dark palette. Only the tokens change, so components need no `dark:`. */
+.dark {
+  --color-bg: #17120f;
+  --color-bg-2: #211914;
+  --color-surface: #241d18;
+  --color-surface-2: #2b221c;
+  --color-ink: #fff3ea;
+  --color-ink-soft: #b9a89c;
+  --color-line: #3a2f27;
+
+  --color-primary: #ff5b4e;
+  --color-primary-deep: #d63a2e;
+  --color-primary-ink: #24100d;
+  --color-primary-soft: #4a221d;
+
+  --color-mint-soft: #17392a;
+  --color-sky-soft: #16294a;
+  --color-butter-soft: #3c2d10;
+  --color-grape-soft: #2b2350;
+
+  --shadow-soft-1: 0 1px 0 rgba(0, 0, 0, 0.4), 0 6px 14px -8px rgba(0, 0, 0, 0.7);
+  --shadow-soft-2: 0 2px 0 rgba(0, 0, 0, 0.4), 0 18px 34px -18px rgba(0, 0, 0, 0.8);
+  --shadow-soft-3: 0 3px 0 rgba(0, 0, 0, 0.45), 0 44px 70px -34px rgba(0, 0, 0, 0.9);
+  --shadow-soft-press: 0 1px 0 rgba(0, 0, 0, 0.5), 0 3px 8px -4px rgba(0, 0, 0, 0.7);
+}
+
+@layer base {
+  body {
+    margin: 0;
+    background-color: var(--color-bg);
+    color: var(--color-ink);
+    font-family: var(--font-text);
+    font-size: 16px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.02;
+    margin: 0;
+  }
+
+  p {
+    margin: 0;
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--color-primary);
+    outline-offset: 3px;
+  }
+}
+
+/* Two stacked radial washes behind an app shell. Utilities cannot express a
+   multi-layer, multi-stop gradient this cleanly. */
+@utility page-bg {
+  background-color: var(--color-bg);
+  background-image:
+    radial-gradient(120% 70% at 12% -10%, var(--color-bg-2) 0%, rgba(255, 236, 224, 0) 60%),
+    radial-gradient(90% 60% at 100% 0%, var(--color-primary-soft) 0%, rgba(255, 226, 222, 0) 55%);
+}
+
+.dark .page-bg {
+  background-image:
+    radial-gradient(120% 70% at 12% -10%, var(--color-bg-2) 0%, rgba(33, 25, 20, 0) 60%),
+    radial-gradient(90% 60% at 100% 0%, rgba(74, 34, 29, 0.85) 0%, rgba(74, 34, 29, 0) 55%);
+}
+
+/* Confetti dots, faded out toward the bottom with a mask. */
+@utility confetti {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image: radial-gradient(currentColor 1.6px, transparent 1.7px);
+  background-size: 26px 26px;
+  color: rgba(34, 26, 22, 0.13);
+  -webkit-mask-image: linear-gradient(180deg, #000 0%, transparent 55%);
+  mask-image: linear-gradient(180deg, #000 0%, transparent 55%);
+}
+
+.dark .confetti {
+  color: rgba(255, 243, 234, 0.14);
+}
+
+/* Shimmering placeholder fill. */
+@utility skel {
+  border-radius: var(--radius-md);
+  background: linear-gradient(
+    100deg,
+    var(--color-surface-2) 30%,
+    var(--color-primary-soft) 50%,
+    var(--color-surface-2) 70%
+  );
+  background-size: 300% 100%;
+  animation: var(--animate-shimmer);
+}
+
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes boing {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+  40% {
+    transform: translateY(-14px) scale(1.08, 0.92);
+  }
+  70% {
+    transform: translateY(0) scale(0.92, 1.08);
+  }
+}
+
+@keyframes shimmer {
+  from {
+    background-position: 150% 0;
+  }
+  to {
+    background-position: -150% 0;
+  }
+}
+
+@keyframes drop {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* One global brake instead of per-component guards. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    transform: none !important;
+  }
+}
