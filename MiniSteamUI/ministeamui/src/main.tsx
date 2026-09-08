@@ -6,9 +6,6 @@ import App from "./App.tsx";
 import StorePage from "./routes/StorePage.tsx";
 import GameDetailPage from "./routes/GameDetailPage.tsx";
 import PlayRoute from "./routes/PlayRoute.tsx";
-import SampleBoot from "./pages/SampleBoot.tsx";
-import SampleChooser from "./pages/SampleChooser.tsx";
-import SampleRoute from "./pages/SampleRoute.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -20,12 +17,6 @@ createRoot(document.getElementById("root")!).render(
             {/* Renders over the detail page, so closing it goes back one entry. */}
             <Route path="play" element={<PlayRoute />} />
           </Route>
-        </Route>
-
-        {/* Visual reference for the playroom rewrite. Removed once signed off. */}
-        <Route element={<SampleBoot />}>
-          <Route path="/samples" element={<SampleChooser />} />
-          <Route path="/samples/:slug" element={<SampleRoute />} />
         </Route>
       </Routes>
     </BrowserRouter>
