@@ -27,11 +27,14 @@ export function MainContent() {
               games.map((game) => (
                 <GameCard
                   key={game.id}
-                  title={game.title}
-                  price="$0.00"
-                  imageUrl={game.iconPath}
+                  game={game}
                   // A game without a URL cannot be embedded, so it stays non-playable.
-                  onPlay={game.url ? () => setActiveGame(game) : undefined}
+                  onPlay={(item) => {
+                    if (item.url) setActiveGame(item);
+                  }}
+                  onOpen={(item) => {
+                    if (item.url) setActiveGame(item);
+                  }}
                 />
               ))
             ) : (
