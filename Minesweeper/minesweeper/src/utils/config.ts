@@ -1,6 +1,10 @@
 import type { GameConfig } from "../types";
 
-export const DIFFICULTIES: Record<string, GameConfig> = {
+export const DIFFICULTY_KEYS = ["easy", "medium", "hard"] as const;
+
+export type DifficultyKey = (typeof DIFFICULTY_KEYS)[number];
+
+export const DIFFICULTIES: Record<DifficultyKey, GameConfig> = {
   easy: {
     rows: 9,
     cols: 9,
@@ -18,7 +22,7 @@ export const DIFFICULTIES: Record<string, GameConfig> = {
   },
 };
 
-
- export const BASE_COLS = 9;
- export const BASE_SIZE = 40;
- export const MIN_SIZE = 18;
+/** Narrows the raw string a `<select>` hands back into a difficulty key. */
+export function isDifficultyKey(value: string): value is DifficultyKey {
+  return (DIFFICULTY_KEYS as readonly string[]).includes(value);
+}

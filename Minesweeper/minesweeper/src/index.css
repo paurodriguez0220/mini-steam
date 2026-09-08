@@ -1,6 +1,77 @@
+/* Fonts must be the first rule in the document: CSS drops an @import that
+   follows other rules, and the shared theme is inlined after Tailwind. */
+@import url("https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Nunito:wght@400..900&display=swap");
+
 @import "tailwindcss";
+@import "../../../shared/theme.css";
 
+/* ==========================================================================
+   Minesweeper-only tokens
+   --------------------------------------------------------------------------
+   Everything AROUND the board is playroom (shared/theme.css). The board and
+   its cells keep the Win95 skeuomorphic bevel, because that is what makes
+   Minesweeper read as Minesweeper - but retinted warm so it sits inside the
+   playroom palette instead of being cold Windows grey, and with dark values
+   so it is no longer a light-mode-only assumption.
 
-body {
-  margin: 0;
+   The bevel triplet used to be the same three raw hex values duplicated
+   across four components. It lives here now, once, behind two utilities.
+   ========================================================================== */
+
+@theme static {
+  /* Bevel: a warm cream face lit from the top-left. */
+  --color-bevel-face: #ead9c9;
+  --color-bevel-light: #fff8f1;
+  --color-bevel-dark: #b3927a;
+
+  /* Canonical Minesweeper number scale. 5-8 used to collapse to `text-black`,
+     which was both wrong and invisible on a dark surface. */
+  --color-num-1: #1d4ed8;
+  --color-num-2: #15803d;
+  --color-num-3: #c2261d;
+  --color-num-4: #6b21a8;
+  --color-num-5: #8c2f28;
+  --color-num-6: #0f766e;
+  --color-num-7: #221a16;
+  --color-num-8: #6e5f57;
+}
+
+/* Same variables, dark palette - matching how shared/theme.css flips, so the
+   call sites need no `dark:` prefixes. */
+.dark {
+  --color-bevel-face: #3b302a;
+  --color-bevel-light: #5b4a40;
+  --color-bevel-dark: #1b1410;
+
+  --color-num-1: #8ab4ff;
+  --color-num-2: #6bd695;
+  --color-num-3: #ff8378;
+  --color-num-4: #c4aaff;
+  --color-num-5: #f0a09a;
+  --color-num-6: #5fd3cc;
+  --color-num-7: #fff3ea;
+  --color-num-8: #b9a89c;
+}
+
+/* The lit/shadowed edge pair as one class instead of six border utilities.
+   Neither utility sets a background: the caller pairs it with `bg-bevel-face`
+   (or `bg-primary` for a tripped mine), so nothing depends on class order the
+   way the old `bg-[#c0c0c0] ... bg-red-600` append did.
+   `--bevel-width` lets a 30px cell wear a 1px version of the same inset. */
+@utility bevel-raised {
+  border-style: solid;
+  border-width: var(--bevel-width, 4px);
+  border-top-color: var(--color-bevel-light);
+  border-left-color: var(--color-bevel-light);
+  border-bottom-color: var(--color-bevel-dark);
+  border-right-color: var(--color-bevel-dark);
+}
+
+@utility bevel-inset {
+  border-style: solid;
+  border-width: var(--bevel-width, 4px);
+  border-top-color: var(--color-bevel-dark);
+  border-left-color: var(--color-bevel-dark);
+  border-bottom-color: var(--color-bevel-light);
+  border-right-color: var(--color-bevel-light);
 }

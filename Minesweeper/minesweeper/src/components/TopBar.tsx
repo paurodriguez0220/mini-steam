@@ -1,46 +1,70 @@
-import { DIFFICULTIES } from "../utils/config";
+import type { JSX } from "react";
+import type { DifficultyKey } from "../utils/config";
+import { DIFFICULTY_KEYS, isDifficultyKey } from "../utils/config";
 
-type Props = {
+/**
+ * The two readouts. `bg-ink`/`text-bg` is an inverted playroom chip - it
+ * reads as an LED panel in light mode and inverts cleanly in dark mode,
+ * which the old off-system `bg-gray-800 text-white` could not do.
+ */
+const READOUT_CLASSES =
+  "flex min-h-11 shrink-0 items-center gap-1.5 rounded-sm bg-ink px-3 font-display text-lg tabular-nums text-bg";
+
+export interface TopBarProps {
   flagsLeft: number;
+  /** Whole seconds since the first reveal. Frozen once the run ends. */
+  elapsedSeconds: number;
   gameOver: boolean;
   won: boolean;
-  difficulty: string;
+  difficulty: DifficultyKey;
   onRestart: () => void;
-  onDifficultyChange: (key: string) => void;
-};
+  onDifficultyChange: (key: DifficultyKey) => void;
+}
 
 export function TopBar({
   flagsLeft,
+  elapsedSeconds,
   gameOver,
   won,
   difficulty,
   onRestart,
   onDifficultyChange,
-}: Props) {
+}: TopBarProps): JSX.Element {
+  const face = gameOver ? "😵" : won ? "😎" : "🙂";
+
   return (
-    <div className="flex w-full items-center justify-between gap-3 mb-2
-        bg-[#c0c0c0]
-        border-[4px]
-        border-t-[#7b7b7b]
-        border-l-[#7b7b7b]
-        border-b-[#ffffff]
-        border-r-[#ffffff]"
-      >
-      <div className="bg-gray-800 text-white px-3 py-1 rounded font-mono shrink-0 font-[Calculator]">
+    <div className="flex w-full flex-wrap items-center justify-between gap-3 rounded-md bg-surface-2 p-2 shadow-soft-1">
+      <span className={READOUT_CLASSES} aria-label={`${flagsLeft} flags left`}>
         💣 {flagsLeft}
-      </div>
+      </span>
+
+      <span className={READOUT_CLASSES} aria-label={`${elapsedSeconds} seconds elapsed`}>
+        ⏱ {elapsedSeconds}
+      </span>
+
       <button
+        type="button"
         onClick={onRestart}
-        className="bg-gray-300 px-3 py-1 rounded shadow hover:bg-gray-400 shrink-0"
+        aria-label="Restart game"
+        className="min-h-11 min-w-11 shrink-0 rounded-sm bg-primary px-3 text-xl text-primary-ink shadow-soft-1 transition-transform duration-150 ease-spring hover:scale-105 active:scale-95 active:shadow-soft-press"
       >
-        {gameOver ? "😵" : won ? "😎" : "🙂"}
+        {face}
       </button>
+
+      <label htmlFor="difficulty" className="sr-only">
+        Difficulty
+      </label>
       <select
+        id="difficulty"
         value={difficulty}
-        onChange={(e) => onDifficultyChange(e.target.value)}
-        className="px-3 py-1 rounded bg-gray-200 text-black shadow border focus:outline-none focus:ring"
+        onChange={(event) => {
+          if (isDifficultyKey(event.target.value)) {
+            onDifficultyChange(event.target.value);
+          }
+        }}
+        className="min-h-11 shrink-0 rounded-sm border border-line bg-surface px-3 font-text font-bold text-ink shadow-soft-1"
       >
-        {Object.keys(DIFFICULTIES).map((key) => (
+        {DIFFICULTY_KEYS.map((key) => (
           <option key={key} value={key}>
             {key.toUpperCase()}
           </option>
