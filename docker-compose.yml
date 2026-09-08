@@ -43,7 +43,9 @@ services:
 
   ui:
     build:
-      context: ./MiniSteamUI/ministeamui
+      # Root context: the SPAs import shared/theme.css from the repo root.
+      context: .
+      dockerfile: MiniSteamUI/ministeamui/Dockerfile
       args:
         # Vite inlines these at build time, so they are baked into the image.
         VITE_API_URL: "http://localhost:${API_PORT:-8085}"
@@ -56,19 +58,34 @@ services:
 
   game-2048:
     build:
-      context: ./2048/2048
+      context: .
+      dockerfile: 2048/2048/Dockerfile
+      args:
+        # Where the game posts its score messages. The storefront validates the
+        # sending origin on its side too.
+        VITE_STOREFRONT_ORIGIN: "http://localhost:${UI_PORT:-5173}"
     ports:
       - "${GAME_2048_PORT:-5174}:8080"
 
   game-snake:
     build:
-      context: ./Snake/snake
+      context: .
+      dockerfile: Snake/snake/Dockerfile
+      args:
+        # Where the game posts its score messages. The storefront validates the
+        # sending origin on its side too.
+        VITE_STOREFRONT_ORIGIN: "http://localhost:${UI_PORT:-5173}"
     ports:
       - "${GAME_SNAKE_PORT:-5175}:8080"
 
   game-minesweeper:
     build:
-      context: ./Minesweeper/minesweeper
+      context: .
+      dockerfile: Minesweeper/minesweeper/Dockerfile
+      args:
+        # Where the game posts its score messages. The storefront validates the
+        # sending origin on its side too.
+        VITE_STOREFRONT_ORIGIN: "http://localhost:${UI_PORT:-5173}"
     ports:
       - "${GAME_MINESWEEPER_PORT:-5176}:8080"
 
