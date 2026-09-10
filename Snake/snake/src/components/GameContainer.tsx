@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Grid from "./Grid";
 import type { Point } from "../types";
 import {
@@ -10,6 +10,9 @@ import {
 } from "../utils/snake";
 import usePrefersReducedMotion from "../hooks/usePrefersReducedMotion";
 import { useBoardFit } from "../../../../shared/use-board-fit";
+import { useSwipe } from "../../../../shared/use-swipe";
+import type { SwipeDirection } from "../../../../shared/swipe";
+import DirectionPad from "./DirectionPad";
 import { postGameScore } from "../../../../shared/game-score";
 import type { GameMetric } from "../../../../shared/game-score";
 
@@ -55,6 +58,13 @@ const WASD_DIRECTIONS: Record<string, Point> = {
   s: DOWN,
   a: LEFT,
   d: RIGHT,
+};
+
+const SWIPE_DIRECTIONS: Record<SwipeDirection, Point> = {
+  up: UP,
+  down: DOWN,
+  left: LEFT,
+  right: RIGHT,
 };
 
 function directionForKey(key: string): Point | undefined {
@@ -109,32 +119,47 @@ export default function GameContainer() {
   const hasAnnouncedReady = useRef(false);
   const hasReportedFinal = useRef(false);
 
+  /**
+   * The one way a turn enters the game, whichever input asked for it.
+   *
+   * Validates against the last turn already queued rather than the direction
+   * the snake is facing now: the queued one is what the snake will be facing
+   * when this turn is applied. Checking the committed direction instead is
+   * what let two quick presses double the snake back through its own neck.
+   */
+  const queueTurn = useCallback((next: Point): void => {
+    if (!runningRef.current) return;
+
+    const facing = queueRef.current[queueRef.current.length - 1] ?? directionRef.current;
+    if (next.x === -facing.x && next.y === -facing.y) return;
+    if (next.x === facing.x && next.y === facing.y) return;
+    if (queueRef.current.length >= MAX_QUEUED_TURNS) return;
+
+    queueRef.current.push(next);
+    setStarted(true);
+  }, []);
+
+  const handleSwipe = useCallback(
+    (direction: SwipeDirection): void => queueTurn(SWIPE_DIRECTIONS[direction]),
+    [queueTurn],
+  );
+
+  const swipeHandlers = useSwipe(handleSwipe);
+
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
       const next = directionForKey(e.key);
       if (!next) return;
 
       // The game owns the arrow keys - without this they scroll the embedding
-      // page, because the board is taller than a short iframe viewport. WASD
-      // carries no default worth suppressing.
+      // page. WASD carries no default worth suppressing.
       if (e.key in ARROW_DIRECTIONS) e.preventDefault();
-      if (!runningRef.current) return;
 
-      // Validate against the last turn already queued, not the direction the
-      // snake is facing now: the queued one is what the snake will be facing
-      // when this turn is applied. Checking the committed direction instead is
-      // what let two quick presses double the snake back through its own neck.
-      const facing = queueRef.current[queueRef.current.length - 1] ?? directionRef.current;
-      if (next.x === -facing.x && next.y === -facing.y) return;
-      if (next.x === facing.x && next.y === facing.y) return;
-      if (queueRef.current.length >= MAX_QUEUED_TURNS) return;
-
-      queueRef.current.push(next);
-      setStarted(true);
+      queueTurn(next);
     };
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
-  }, []);
+  }, [queueTurn]);
 
   // One tick = one move. The whole move is computed outside the state updaters
   // so that ending the run and placing new food are plain effects of the tick,
@@ -260,7 +285,7 @@ export default function GameContainer() {
           the viewport - the exact bug being fixed. */}
       <div ref={boardFrameRef} className="relative z-10 grid min-h-0 place-items-center">
         {cellSize > 0 && (
-          <div className="relative">
+          <div className="relative" style={{ touchAction: "none" }} {...swipeHandlers}>
             <Grid
               snake={snake}
               food={food}
@@ -299,9 +324,9 @@ export default function GameContainer() {
         )}
       </div>
 
-      {/* Task 5 puts the D-pad here. Empty until then, but the row exists so
-          adding it does not re-flow the board. */}
-      <div className="relative z-10" />
+      <div className="relative z-10">
+        <DirectionPad onTurn={handleSwipe} />
+      </div>
     </div>
   );
 }
