@@ -25,12 +25,65 @@
   --color-board-dark: #bdd689;
   --color-board-edge: #8fae5c;
 
-  /* the snake - stays blue, pulled a shade deeper for contrast on warm green */
+  /* the snake - stays blue, pulled a shade deeper for contrast on warm green.
+     `deep` is the alternating band down the body, kept close to the base colour
+     so the body still reads as one tube rather than as separate cells. */
   --color-snake: #3f7fdd;
+  --color-snake-deep: #3673c9;
   --color-snake-eye: #fff7f0;
+  --color-snake-pupil: #12305c;
+  --color-snake-tongue: #e8352e;
 
   /* the food - the playroom red, with a warm highlight ring and a mint leaf */
   --color-food: #e8352e;
   --color-food-ring: #ffb2ab;
   --color-food-leaf: #1faa63;
+}
+
+/* The tongue.
+   Clipped rather than assembled from two elements: a fork is one shape, and one
+   clip-path keeps the head to a single tongue node. The shaft runs from the
+   snout to 55% and the prongs split from there.
+
+   `transform-origin` is at the snout end so the flick extends outwards instead
+   of growing from the middle, and the keyframes carry the -50% centring
+   translate because an animated `transform` replaces the whole property. */
+.snake-tongue {
+  transform-origin: left center;
+  transform: translateY(-50%) scaleX(0.1);
+  opacity: 0;
+  clip-path: polygon(
+    0% 35%,
+    55% 35%,
+    55% 0%,
+    100% 12%,
+    72% 50%,
+    100% 88%,
+    55% 100%,
+    55% 65%,
+    0% 65%
+  );
+  animation: snake-tongue-flick 2.2s ease-in-out infinite;
+}
+
+@keyframes snake-tongue-flick {
+  0%,
+  78%,
+  100% {
+    transform: translateY(-50%) scaleX(0.1);
+    opacity: 0;
+  }
+  84%,
+  93% {
+    transform: translateY(-50%) scaleX(1);
+    opacity: 1;
+  }
+}
+
+/* The board already stops gliding when motion is reduced (the tick duration is
+   passed in as 0), so the tongue has to stop flicking too. */
+@media (prefers-reduced-motion: reduce) {
+  .snake-tongue {
+    animation: none;
+  }
 }
