@@ -266,7 +266,7 @@ export default function GameContainer() {
     // the iframe, and a min-height taller than it is what grew the scrollbar.
     // Three rows - HUD, board, controls - and only the board row flexes, so
     // the game cannot outgrow its viewport by construction.
-    <div className="page-bg relative isolate grid h-dvh grid-rows-[auto_1fr_auto] gap-2 overflow-hidden p-2 sm:gap-3 sm:p-4">
+    <div className="page-bg relative isolate grid h-dvh grid-cols-1 grid-rows-[auto_1fr_auto] gap-2 overflow-hidden p-2 sm:gap-3 sm:p-4">
       <span className="confetti" aria-hidden="true" />
 
       <header className="relative z-10 flex animate-pop-in flex-wrap items-center justify-center gap-x-4 gap-y-1">
@@ -282,8 +282,15 @@ export default function GameContainer() {
 
       {/* min-h-0 is what lets this row shrink. A grid row is min-content by
           default, which would let the board push the container taller than
-          the viewport - the exact bug being fixed. */}
-      <div ref={boardFrameRef} className="relative z-10 grid min-h-0 place-items-center">
+          the viewport - the exact bug being fixed. min-w-0 is the same rule on
+          the other axis, and grid-cols-1 above resolves to minmax(0, 1fr) so
+          the column cannot be stretched to the board's width either. Without
+          both, a board sized at a wide viewport props its own frame open and
+          never re-fits when the viewport narrows. */}
+      <div
+        ref={boardFrameRef}
+        className="relative z-10 grid min-h-0 min-w-0 place-items-center"
+      >
         {cellSize > 0 && (
           <div className="relative" style={{ touchAction: "none" }} {...swipeHandlers}>
             <Grid

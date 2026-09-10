@@ -30,6 +30,13 @@ const TICK_MS = 250;
 const MIN_CELL_PX = 32;
 const MAX_CELL_PX = 44;
 
+/**
+ * Pixels of the frame that are not board: the pan frame's p-1 and the card's
+ * p-3, both sides. Without subtracting these, a 9-column `easy` board comes
+ * out a few pixels too wide for a phone and pans when it did not need to.
+ */
+const BOARD_CHROME_PX = (4 + 12) * 2;
+
 function elapsedSecondsSince(startedAt: number | null): number {
   return startedAt === null ? 0 : Math.floor((Date.now() - startedAt) / 1000);
 }
@@ -53,6 +60,7 @@ export function GameContainer(): JSX.Element {
   const [boardFrameRef, cellSize] = useBoardFit<HTMLDivElement>({
     cols: config.cols,
     rows: config.rows,
+    gapTotal: BOARD_CHROME_PX,
     min: MIN_CELL_PX,
     max: MAX_CELL_PX,
   });
@@ -193,7 +201,7 @@ export function GameContainer(): JSX.Element {
   }, [board, gameOver, config, sendFinal]);
 
   return (
-    <div className="page-bg relative isolate grid h-dvh grid-rows-[auto_1fr] gap-2 overflow-hidden p-2 sm:gap-3 sm:p-4">
+    <div className="page-bg relative isolate grid h-dvh grid-cols-1 grid-rows-[auto_1fr] gap-2 overflow-hidden p-2 sm:gap-3 sm:p-4">
       <span className="confetti" aria-hidden="true" />
 
       <div className="relative z-10 mx-auto w-full max-w-[560px]">
@@ -214,11 +222,15 @@ export function GameContainer(): JSX.Element {
           board does. */}
       <div
         ref={boardFrameRef}
-        className="relative z-10 min-h-0 overflow-auto overscroll-contain"
+        className="relative z-10 min-h-0 min-w-0 overflow-auto overscroll-contain"
         style={{ touchAction: "pan-x pan-y pinch-zoom" }}
         {...pinchHandlers}
       >
-        <div className="grid min-h-full w-max min-w-full place-items-center p-1">
+        {/* py-1, not p-1: horizontal padding on the element that also carries
+            min-w-full rounds it a fraction past the frame's client width, which
+            is enough to leave a horizontal scrollbar showing permanently on a
+            board that otherwise fits. */}
+        <div className="grid min-h-full w-max min-w-full place-items-center py-1">
           <div
             style={{
               transform: `scale(${scale})`,

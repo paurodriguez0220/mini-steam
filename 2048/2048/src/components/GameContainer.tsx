@@ -168,7 +168,7 @@ export function GameContainer() {
   }, [isOver, score]);
 
   return (
-    <div className="page-bg relative isolate grid h-dvh grid-rows-[auto_1fr_auto] gap-2 overflow-hidden p-2 sm:gap-4 sm:p-4">
+    <div className="page-bg relative isolate grid h-dvh grid-cols-1 grid-rows-[auto_1fr_auto] gap-2 overflow-hidden p-2 sm:gap-4 sm:p-4">
       <span className="confetti" aria-hidden="true" />
 
       <header className="relative z-10 mx-auto flex w-full max-w-[520px] items-center justify-between gap-4">
@@ -185,10 +185,13 @@ export function GameContainer() {
       </header>
 
       {/* min-h-0 lets this row shrink; without it the grid row is min-content
-          and the board pushes the page taller than the viewport. */}
+          and the board pushes the page taller than the viewport. min-w-0 and
+          the grid-cols-1 above (which resolves to minmax(0, 1fr)) do the same
+          on the other axis, or a board sized at a wide viewport props its own
+          frame open and never re-fits when the viewport narrows. */}
       <div
         ref={boardFrameRef}
-        className="relative z-10 grid min-h-0 place-items-center"
+        className="relative z-10 grid min-h-0 min-w-0 place-items-center"
         style={{ touchAction: "none" }}
         {...swipeHandlers}
       >
