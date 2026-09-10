@@ -10,6 +10,7 @@ import {
   calculateNumbers,
   revealFlood,
 } from "../utils/board";
+import { useBoardFit } from "../../../../shared/use-board-fit";
 import { postGameScore } from "../../../../shared/game-score";
 import type { GameMetric, GameOutcome } from "../../../../shared/game-score";
 
@@ -19,6 +20,14 @@ const INITIAL_DIFFICULTY: DifficultyKey = "easy";
 
 /** Faster than 1s so the displayed whole second is never visibly stale. */
 const TICK_MS = 250;
+
+/**
+ * Cell sizing. Unlike Snake and 2048, Minesweeper does not shrink to fit: a
+ * 30-column `hard` board on a 390px phone would mean ~13px cells, far below a
+ * usable tap target. It holds a tappable size and pans instead.
+ */
+const MIN_CELL_PX = 32;
+const MAX_CELL_PX = 44;
 
 function elapsedSecondsSince(startedAt: number | null): number {
   return startedAt === null ? 0 : Math.floor((Date.now() - startedAt) / 1000);
@@ -39,6 +48,13 @@ export function GameContainer(): JSX.Element {
   // board it described.
   const [difficulty, setDifficulty] = useState<DifficultyKey>(INITIAL_DIFFICULTY);
   const config = DIFFICULTIES[difficulty];
+
+  const [boardFrameRef, cellSize] = useBoardFit<HTMLDivElement>({
+    cols: config.cols,
+    rows: config.rows,
+    min: MIN_CELL_PX,
+    max: MAX_CELL_PX,
+  });
 
   const [board, setBoard] = useState(() => createEmptyBoard(DIFFICULTIES[INITIAL_DIFFICULTY]));
   const [started, setStarted] = useState(false);
@@ -174,30 +190,47 @@ export function GameContainer(): JSX.Element {
   }, [board, gameOver, config, sendFinal]);
 
   return (
-    // `min-h-dvh` rather than `min-h-screen`: inside the storefront iframe the
-    // viewport is the iframe, and `overflow-auto` + `w-max min-w-full` keeps
-    // the 30-column `hard` board reachable instead of clipped by centring.
-    <div className="page-bg relative isolate min-h-dvh w-full overflow-auto">
+    <div className="page-bg relative isolate grid h-dvh grid-rows-[auto_1fr] gap-2 overflow-hidden p-2 sm:gap-3 sm:p-4">
       <span className="confetti" aria-hidden="true" />
 
-      <div className="relative z-10 flex min-h-dvh w-max min-w-full items-center justify-center p-4">
-        <div className="inline-flex animate-pop-in flex-col items-center gap-4 rounded-lg bg-surface p-4 shadow-soft-2">
-          <TopBar
-            flagsLeft={flagsLeft}
-            elapsedSeconds={elapsedSeconds}
-            gameOver={gameOver}
-            won={won}
-            difficulty={difficulty}
-            onRestart={() => restart()}
-            onDifficultyChange={(key) => restart(key)}
-          />
+      <div className="relative z-10 mx-auto w-full max-w-[560px]">
+        <TopBar
+          flagsLeft={flagsLeft}
+          elapsedSeconds={elapsedSeconds}
+          gameOver={gameOver}
+          won={won}
+          difficulty={difficulty}
+          onRestart={() => restart()}
+          onDifficultyChange={(key) => restart(key)}
+        />
+      </div>
 
-          <Board board={board} config={config} onReveal={handleReveal} onFlag={handleFlag} />
+      {/* The frame is what is measured and what pans. The board inside it is
+          whatever size a tappable cell makes it - which on a phone is wider
+          than this frame, and that is the point: the page never scrolls, the
+          board does. */}
+      <div
+        ref={boardFrameRef}
+        className="relative z-10 min-h-0 overflow-auto overscroll-contain"
+        style={{ touchAction: "pan-x pan-y" }}
+      >
+        <div className="grid min-h-full w-max min-w-full place-items-center p-1">
+          {cellSize > 0 && (
+            <div className="inline-flex animate-pop-in flex-col items-center gap-3 rounded-lg bg-surface p-3 shadow-soft-2">
+              <Board
+                board={board}
+                config={config}
+                cellSize={cellSize}
+                onReveal={handleReveal}
+                onFlag={handleFlag}
+              />
 
-          {gameOver && (
-            <p className="font-display text-xl font-bold text-primary">💥 Game Over</p>
+              {gameOver && (
+                <p className="font-display text-xl font-bold text-primary">💥 Game Over</p>
+              )}
+              {won && <p className="font-display text-xl font-bold text-mint">🎉 You Won!</p>}
+            </div>
           )}
-          {won && <p className="font-display text-xl font-bold text-mint">🎉 You Won!</p>}
         </div>
       </div>
     </div>
