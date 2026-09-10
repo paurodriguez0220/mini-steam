@@ -1,4 +1,5 @@
-import type { JSX } from "react";
+import { useCallback, useRef } from "react";
+import type { JSX, PointerEvent as ReactPointerEvent } from "react";
 import type { Cell } from "../types";
 
 /**
@@ -22,6 +23,12 @@ const NUMBER_COLORS: Record<number, string> = {
 
 const BASE_CLASSES =
   "flex aspect-square w-full select-none items-center justify-center font-text text-sm font-bold leading-none";
+
+/** Hold this long to flag. Long enough not to fire on a slow tap. */
+const LONG_PRESS_MS = 450;
+
+/** Move further than this and it was a pan, not a press. */
+const MOVE_TOLERANCE_PX = 10;
 
 /**
  * The cell's surface, as three explicit branches.
@@ -64,12 +71,82 @@ export interface CellButtonProps {
 }
 
 export function CellButton({ cell, onReveal, onFlag }: CellButtonProps): JSX.Element {
+  const timerRef = useRef<number | null>(null);
+  const startRef = useRef<{ x: number; y: number } | null>(null);
+  /**
+   * Set when the hold fires, so the click that follows the release is
+   * swallowed - otherwise a long press would flag the cell and then reveal it.
+   */
+  const didLongPressRef = useRef(false);
+
+  const cancel = useCallback((): void => {
+    if (timerRef.current !== null) {
+      window.clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
+    startRef.current = null;
+  }, []);
+
+  const onPointerDown = useCallback(
+    (event: ReactPointerEvent): void => {
+      // Mouse right-click still goes through onContextMenu; only a primary
+      // press arms the hold.
+      if (event.button !== 0) return;
+
+      didLongPressRef.current = false;
+      startRef.current = { x: event.clientX, y: event.clientY };
+
+      timerRef.current = window.setTimeout(() => {
+        didLongPressRef.current = true;
+        timerRef.current = null;
+        // Confirms the flag without the player having to look up. Absent on
+        // iOS, where it is a no-op rather than an error.
+        navigator.vibrate?.(30);
+        onFlag();
+      }, LONG_PRESS_MS);
+    },
+    [onFlag],
+  );
+
+  const onPointerMove = useCallback(
+    (event: ReactPointerEvent): void => {
+      const start = startRef.current;
+      if (start === null) return;
+
+      // Panning the board must not flag whatever cell the finger started on.
+      if (
+        Math.abs(event.clientX - start.x) > MOVE_TOLERANCE_PX ||
+        Math.abs(event.clientY - start.y) > MOVE_TOLERANCE_PX
+      ) {
+        cancel();
+      }
+    },
+    [cancel],
+  );
+
+  const onClick = useCallback((): void => {
+    if (didLongPressRef.current) {
+      didLongPressRef.current = false;
+      return;
+    }
+    onReveal();
+  }, [onReveal]);
+
   return (
     <button
       type="button"
-      onClick={onReveal}
+      onClick={onClick}
+      onPointerDown={onPointerDown}
+      onPointerMove={onPointerMove}
+      onPointerUp={cancel}
+      onPointerCancel={cancel}
+      onPointerLeave={cancel}
       onContextMenu={(event) => {
         event.preventDefault();
+        // A long press on a touch device also raises contextmenu in some
+        // browsers. The timer has already flagged by then, so suppress the
+        // duplicate rather than toggling the flag straight back off.
+        if (didLongPressRef.current) return;
         onFlag();
       }}
       className={`${BASE_CLASSES} ${surfaceClasses(cell)}`}
