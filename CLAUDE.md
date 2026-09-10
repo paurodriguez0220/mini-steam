@@ -90,12 +90,14 @@ Run from the repo root unless noted.
 | `npm run dev` | Start a Vite dev server (storefront defaults to http://localhost:5173) |
 | `npm run build` | Type-check (`tsc -b`) and build for production |
 | `npm run lint` | Run ESLint |
+| `npm test` (repo root) | Run the `shared/` unit tests (Vitest) |
 
 API docs are served by Scalar at `/scalar/v1` and the OpenAPI document at `/openapi/v1.json`.
 
-There is **no test suite in this repository yet** — tracked in
-`docs/tasks/queue/add-test-suites.md`. Until it exists, verify changes with
-`dotnet build` and `npm run build`, and say plainly that tests were not run.
+`shared/` has unit tests (`npm test` from the repo root). The apps do not yet —
+that is tracked in `docs/tasks/queue/add-test-suites.md`. Verify app changes
+with `dotnet build` and `npm run build`, and say plainly that app tests were
+not run.
 
 The API stores data in SQLite. In Docker the file lives on the `api-data` volume at
 `/data/ministeam.db`; run `./scripts/down.ps1 -Purge` to reset to a clean, re-seeded
