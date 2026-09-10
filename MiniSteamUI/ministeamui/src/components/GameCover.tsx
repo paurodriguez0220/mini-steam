@@ -8,7 +8,7 @@ import type { JSX } from "react";
  * The scene palettes are illustration art, not theme: they stay fixed in light and
  * dark so a cover reads the same on the shelf as it does on a detail page.
  */
-type CoverScene = "tiles" | "snake" | "bomb" | "grid" | "initials";
+type CoverScene = "tiles" | "snake" | "bomb" | "grid" | "letters" | "initials";
 
 export interface GameCoverProps {
   /** Game title - decides which mascot scene is drawn and feeds the fallback initials. */
@@ -46,6 +46,7 @@ const SCENE_GROUND: Record<CoverScene, string> = {
   snake: "#d7f5e6",
   bomb: "#dcebff",
   grid: "#ffe6ef",
+  letters: "#e2f5e8",
   initials: "#e7e0ff",
 };
 
@@ -55,6 +56,7 @@ function resolveScene(title: string): CoverScene {
   if (key.includes("snake")) return "snake";
   if (key.includes("mine")) return "bomb";
   if (key.includes("tic") || key.includes("tac")) return "grid";
+  if (key.includes("fiver") || key.includes("word")) return "letters";
   return "initials";
 }
 
@@ -318,6 +320,69 @@ function gridScene(): JSX.Element {
   );
 }
 
+/**
+ * Fiver - a solved row of tiles.
+ *
+ * Green, amber and grey in one line says what the game is faster than any
+ * wordmark would: five slots, and each letter tells you something different.
+ */
+function lettersScene(): JSX.Element {
+  const GREEN = "#1faa63";
+  const AMBER = "#f0a91b";
+  const GREY = "#9d8b80";
+  const BLANK = "#c2e6cf";
+
+  const tile = (
+    x: number,
+    y: number,
+    fill: string,
+    letter: string,
+    key: string,
+  ): JSX.Element => (
+    <g key={key}>
+      <rect x={x} y={y} width={50} height={50} rx={12} fill={fill} />
+      <text
+        x={x + 25}
+        y={y + 34}
+        textAnchor="middle"
+        fill={CREAM}
+        fontSize={28}
+        fontWeight={800}
+        fontFamily="'Bricolage Grotesque', system-ui, sans-serif"
+      >
+        {letter}
+      </text>
+    </g>
+  );
+
+  const solved = [
+    [GREEN, "F"],
+    [GREEN, "I"],
+    [AMBER, "V"],
+    [GREY, "E"],
+    [GREEN, "R"],
+  ] as const;
+
+  return (
+    <g>
+      <circle cx={278} cy={44} r={28} fill={BLANK} opacity={0.6} />
+      <circle cx={36} cy={200} r={20} fill={BLANK} opacity={0.6} />
+
+      <g className={MASCOT}>
+        {/* The row above, still unguessed. */}
+        {[0, 1, 2, 3, 4].map((i) =>
+          tile(35 + i * 50, 62, BLANK, "", `blank-${i}`),
+        )}
+
+        {/* The solved row. */}
+        {solved.map(([fill, letter], i) =>
+          tile(35 + i * 50, 126, fill, letter, `solved-${i}`),
+        )}
+      </g>
+    </g>
+  );
+}
+
 function initialsScene(text: string, palette: ScenePalette): JSX.Element {
   return (
     <g>
@@ -376,6 +441,7 @@ export function GameCover({ title, seed, ribbon, isHero = false }: GameCoverProp
         {scene === "snake" ? snakeScene() : null}
         {scene === "bomb" ? bombScene() : null}
         {scene === "grid" ? gridScene() : null}
+        {scene === "letters" ? lettersScene() : null}
         {scene === "initials" ? initialsScene(initialsFor(title), palette) : null}
       </svg>
 

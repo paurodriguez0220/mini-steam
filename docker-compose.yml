@@ -100,6 +100,17 @@ services:
     ports:
       - "${GAME_TICTACTOE_PORT:-5177}:8080"
 
+  game-fiver:
+    build:
+      context: .
+      dockerfile: Fiver/fiver/Dockerfile
+      args:
+        # Where the game posts its score messages. The storefront validates the
+        # sending origin on its side too.
+        VITE_STOREFRONT_ORIGIN: "http://localhost:${UI_PORT:-5173}"
+    ports:
+      - "${GAME_FIVER_PORT:-5178}:8080"
+
 volumes:
   api-data:
   azurite-data:

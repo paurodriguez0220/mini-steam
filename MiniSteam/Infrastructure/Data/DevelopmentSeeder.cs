@@ -107,6 +107,14 @@ namespace MiniSteam.Infrastructure.Data
                     Url = config["Seed:GameUrls:TicTacToe"] ?? "http://localhost:5177",
                     IconPath = string.Empty,
                     Category = "Puzzle"
+                },
+                new Game
+                {
+                    Title = "Fiver",
+                    Description = "Guess the five-letter word. Keep going until you miss one.",
+                    Url = config["Seed:GameUrls:Fiver"] ?? "http://localhost:5178",
+                    IconPath = string.Empty,
+                    Category = "Word"
                 }
             };
 
@@ -169,7 +177,12 @@ namespace MiniSteam.Infrastructure.Data
                 // ceiling, which is exactly why a draw is worth a point.
                 new("Tic Tac Toe", ScoreValues.MetricKinds.Points, 13, ScoreValues.Outcomes.Won, ScoreValues.Difficulties.Easy, now.AddDays(-4)),
                 new("Tic Tac Toe", ScoreValues.MetricKinds.Points, 9, ScoreValues.Outcomes.Won, ScoreValues.Difficulties.Medium, now.AddDays(-2)),
-                new("Tic Tac Toe", ScoreValues.MetricKinds.Points, 5, ScoreValues.Outcomes.Lost, ScoreValues.Difficulties.Hard, now.AddHours(-9))
+                new("Tic Tac Toe", ScoreValues.MetricKinds.Points, 5, ScoreValues.Outcomes.Lost, ScoreValues.Difficulties.Hard, now.AddHours(-9)),
+                // Fiver scores a streak of solved words. Fewer guesses per word
+                // means shorter streaks, so the hard row is small by design.
+                new("Fiver", ScoreValues.MetricKinds.Points, 14, ScoreValues.Outcomes.Won, ScoreValues.Difficulties.Easy, now.AddDays(-3)),
+                new("Fiver", ScoreValues.MetricKinds.Points, 6, ScoreValues.Outcomes.Lost, ScoreValues.Difficulties.Medium, now.AddDays(-1)),
+                new("Fiver", ScoreValues.MetricKinds.Points, 2, ScoreValues.Outcomes.Lost, ScoreValues.Difficulties.Hard, now.AddHours(-4))
             };
 
             var seeded = 0;

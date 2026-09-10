@@ -1,0 +1,59 @@
+/* Fonts must be the first rule in the document: CSS drops an @import that
+   follows other rules, and the shared theme is inlined after Tailwind. */
+@import url("https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Nunito:wght@400..900&display=swap");
+
+@import "tailwindcss";
+@import "../../../shared/theme.css";
+
+/* Fiver's own layer: the three marks, the key surface, and a stronger border
+   for a tile that has been typed into.
+
+   The marks are the game - a player reads nothing else - so they are the one
+   place worth spending contrast on. Green and amber are pulled from the
+   shared mint and butter rather than invented, so the board still belongs to
+   the playroom, and `mark-ink` is a single near-black that clears AA on all
+   three fills instead of flipping per mark.
+
+   These DO flip in `.dark`: the tiles sit on `surface`, which flips, so a
+   fixed set would lose contrast in one theme. */
+@theme {
+  --color-mark-correct: #1faa63;
+  --color-mark-present: #f0a91b;
+  --color-mark-absent: #9d8b80;
+  --color-mark-ink: #12100f;
+
+  /* Untouched keys and the delete key. */
+  --color-key: #f3e6dc;
+
+  /* A typed-but-unjudged tile, so the active row reads as active. */
+  --color-line-strong: #cdb6a5;
+}
+
+.dark {
+  --color-mark-correct: #46d18c;
+  --color-mark-present: #f5bf4a;
+  --color-mark-absent: #6b5c53;
+  --color-mark-ink: #12100f;
+  --color-key: #3a2f27;
+  --color-line-strong: #5c4b40;
+}
+
+/* A refused guess shakes its row rather than popping a dialog: it says "that
+   did not count" without taking the player out of the flow. */
+@keyframes fiver-shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(6px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(4px); }
+}
+
+.animate-shake {
+  animation: fiver-shake 320ms ease-in-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-shake {
+    animation: none;
+  }
+}

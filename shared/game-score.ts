@@ -26,7 +26,7 @@ export const GAME_SCORE_SOURCE = "ministeam-game";
 export const GAME_SCORE_VERSION = 1;
 
 /** Matches the game slugs the storefront serves. */
-export type GameId = "2048" | "snake" | "minesweeper" | "tictactoe";
+export type GameId = "2048" | "snake" | "minesweeper" | "tictactoe" | "fiver";
 
 /** `points` accumulate upward; `seconds` measure elapsed time. */
 export type MetricKind = "points" | "seconds";
