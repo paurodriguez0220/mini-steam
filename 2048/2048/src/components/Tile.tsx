@@ -1,8 +1,9 @@
 import type { Tile as TileType } from "../types";
-import { TILE_PX, TILE_STEP_PX } from "../board-layout";
+import type { BoardLayout } from "../board-layout";
 
 export interface TileProps {
   tile: TileType;
+  layout: BoardLayout;
 }
 
 /**
@@ -27,27 +28,35 @@ const TILE_PALETTE: Record<number, string> = {
 /** Anything past 2048 - reachable in real play, so it gets a real token. */
 const TILE_PALETTE_MAX = "bg-tile-max text-tile-max-ink";
 
-/** Four- and five-digit values overflow an 80px tile at the base size. */
-function valueTextClass(value: number): string {
-  if (value >= 16384) return "text-xl";
-  if (value >= 1024) return "text-2xl";
-  if (value >= 128) return "text-3xl";
-  return "text-4xl";
+/**
+ * Font size as a fraction of the tile, stepped down as digits are added.
+ *
+ * This used to be four Tailwind size classes chosen against an assumed 80px
+ * tile. With a measured tile the ratio has to be the constant, not the pixel
+ * size, or five digits overflow a small board.
+ */
+function valueFontPx(value: number, tilePx: number): number {
+  if (value >= 16384) return Math.round(tilePx * 0.24);
+  if (value >= 1024) return Math.round(tilePx * 0.3);
+  if (value >= 128) return Math.round(tilePx * 0.375);
+  return Math.round(tilePx * 0.45);
 }
 
-export function Tile({ tile }: TileProps) {
+export function Tile({ tile, layout }: TileProps) {
   const palette = TILE_PALETTE[tile.value] ?? TILE_PALETTE_MAX;
 
   return (
     <div
-      className={`absolute flex items-center justify-center rounded-sm font-display font-bold tabular-nums transition-all duration-300 ease-spring ${palette} ${valueTextClass(
-        tile.value,
-      )} ${tile.spawn ? "animate-pop-in" : ""}`}
+      className={`absolute flex items-center justify-center rounded-sm font-display font-bold tabular-nums transition-all duration-300 ease-spring ${palette} ${
+        tile.spawn ? "animate-pop-in" : ""
+      }`}
       style={{
-        width: TILE_PX,
-        height: TILE_PX,
-        top: tile.row * TILE_STEP_PX,
-        left: tile.col * TILE_STEP_PX,
+        width: layout.tilePx,
+        height: layout.tilePx,
+        top: tile.row * layout.stepPx,
+        left: tile.col * layout.stepPx,
+        fontSize: `${valueFontPx(tile.value, layout.tilePx)}px`,
+        lineHeight: 1,
       }}
     >
       {tile.value}

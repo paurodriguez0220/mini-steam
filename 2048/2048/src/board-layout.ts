@@ -5,29 +5,52 @@ import { BOARD_SIZE } from "./utils/board";
  *
  * The tile size, the per-cell step and the frame size used to be hardcoded
  * independently in Tile.tsx and Board.tsx, so changing one silently broke the
- * others. Everything here derives from TILE_PX and TILE_GAP_PX.
- *
- * The board is deliberately a fixed pixel size; a responsive board is a
- * separate piece of work.
+ * others. Everything here still derives from one number; that number is now
+ * measured rather than fixed.
  */
-
-/** Edge length of a single tile. */
-export const TILE_PX = 80;
 
 /** Gutter between adjacent tiles, and the inset around the whole grid. */
 export const TILE_GAP_PX = 4;
 
-/** Distance from one cell's origin to the next. */
-export const TILE_STEP_PX = TILE_PX + TILE_GAP_PX;
+/**
+ * Biggest tile worth drawing. 80px is what the board used to be pinned at, so
+ * a desktop board comes out exactly the size it always was.
+ */
+export const MAX_TILE_PX = 80;
 
-/** Inner grid: BOARD_SIZE cells with a gap between each, but not after the last. */
-export const BOARD_PX = TILE_STEP_PX * BOARD_SIZE - TILE_GAP_PX;
+/**
+ * Pixels along each axis that are gutter rather than tile: one between each
+ * pair of tiles, plus the inset on both edges.
+ */
+export const BOARD_GAP_TOTAL_PX = TILE_GAP_PX * (BOARD_SIZE + 1);
 
-/** Inset between the grid and the frame edge, so every gutter reads the same. */
-export const BOARD_PADDING_PX = TILE_GAP_PX;
+export interface BoardLayout {
+  /** Edge length of a single tile. */
+  tilePx: number;
+  gapPx: number;
+  /** Distance from one cell's origin to the next. */
+  stepPx: number;
+  /** Inner grid: BOARD_SIZE cells with a gap between each, but not after the last. */
+  boardPx: number;
+  /** Inset between the grid and the frame edge, so every gutter reads the same. */
+  paddingPx: number;
+  /** Outer size of the frame - used to line the header and controls up with the board. */
+  framePx: number;
+}
 
-/** Outer size of the frame - used to line the header and controls up with the board. */
-export const BOARD_FRAME_PX = BOARD_PX + BOARD_PADDING_PX * 2;
+export function boardLayout(cellSize: number): BoardLayout {
+  const stepPx = cellSize + TILE_GAP_PX;
+  const boardPx = stepPx * BOARD_SIZE - TILE_GAP_PX;
+
+  return {
+    tilePx: cellSize,
+    gapPx: TILE_GAP_PX,
+    stepPx,
+    boardPx,
+    paddingPx: TILE_GAP_PX,
+    framePx: boardPx + TILE_GAP_PX * 2,
+  };
+}
 
 /**
  * How long a freshly spawned tile animates for.

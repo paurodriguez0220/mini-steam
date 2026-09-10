@@ -10,6 +10,15 @@
 
     /* Bundler mode */
     "moduleResolution": "bundler",
+
+    /* shared/ sits above this app, so a bare "react" import inside it resolves
+       from shared/ upward and never reaches this app's node_modules. Pin it
+       here; vite.config.ts pins the same two for the bundler. */
+    "baseUrl": ".",
+    "paths": {
+      "react": ["./node_modules/@types/react"],
+      "react-dom": ["./node_modules/@types/react-dom"]
+    },
     "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": true,
     "moduleDetection": "force",

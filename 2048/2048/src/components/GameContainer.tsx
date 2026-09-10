@@ -1,8 +1,14 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Board } from "./Board";
 import type { Tile } from "../types";
-import { addRandomTile, moveTiles, boardChanged, isGameOver } from "../utils/board";
-import { BOARD_FRAME_PX, TILE_SPAWN_ANIMATION_MS } from "../board-layout";
+import { addRandomTile, moveTiles, boardChanged, isGameOver, BOARD_SIZE } from "../utils/board";
+import {
+  BOARD_GAP_TOTAL_PX,
+  MAX_TILE_PX,
+  TILE_SPAWN_ANIMATION_MS,
+  boardLayout,
+} from "../board-layout";
+import { useBoardFit } from "../../../../shared/use-board-fit";
 import { postGameScore, type GameMetric } from "../../../../shared/game-score";
 
 type Direction = "up" | "down" | "left" | "right";
@@ -43,6 +49,17 @@ export function GameContainer() {
   // Derived once per render rather than re-evaluated inline in JSX, so the
   // game-over effect below has a stable value to react to.
   const isOver = isGameOver(tiles);
+
+  const [boardFrameRef, cellSize] = useBoardFit<HTMLDivElement>({
+    cols: BOARD_SIZE,
+    rows: BOARD_SIZE,
+    gapTotal: BOARD_GAP_TOTAL_PX,
+    // 2048 must always show the whole board, so the fit always wins.
+    min: 0,
+    max: MAX_TILE_PX,
+  });
+
+  const layout = boardLayout(cellSize);
 
   // StrictMode invokes effects twice in development. These latches make each
   // score message fire exactly once per real transition.
@@ -129,44 +146,53 @@ export function GameContainer() {
   }, [isOver, score]);
 
   return (
-    <div className="page-bg relative isolate flex min-h-screen w-full items-center justify-center px-4 py-8">
+    <div className="page-bg relative isolate grid h-dvh grid-rows-[auto_1fr_auto] gap-2 overflow-hidden p-2 sm:gap-4 sm:p-4">
       <span className="confetti" aria-hidden="true" />
 
-      <main
-        className="relative z-10 flex animate-pop-in flex-col items-center gap-5"
-        style={{ width: BOARD_FRAME_PX }}
-      >
-        <header className="flex w-full items-end justify-between gap-4">
-          <h1 className="font-display text-4xl text-ink">2048</h1>
+      <header className="relative z-10 mx-auto flex w-full max-w-[520px] items-center justify-between gap-4">
+        <h1 className="font-display text-2xl text-ink sm:text-4xl">2048</h1>
 
-          <div className="rounded-sm bg-surface px-5 py-2 text-center shadow-soft-1">
-            <p className="font-text text-[11px] font-bold uppercase tracking-[0.14em] text-ink-soft">
-              Score
-            </p>
-            <p className="font-display text-2xl leading-none text-ink tabular-nums" aria-live="polite">
-              {score.toLocaleString("en-US")}
-            </p>
-          </div>
-        </header>
-
-        <Board tiles={tiles} />
-
-        <div className="flex w-full items-center justify-between gap-4">
-          {/* Always in the DOM so it is a live region, but empty until the run
-              ends - an always-rendered, visually hidden message gets announced. */}
-          <p role="status" className="flex min-h-11 items-center font-display text-lg text-primary">
-            {isOver && <span className="animate-pop-in">Game Over</span>}
+        <div className="rounded-sm bg-surface px-4 py-1 text-center shadow-soft-1 sm:px-5 sm:py-2">
+          <p className="font-text text-[11px] font-bold uppercase tracking-[0.14em] text-ink-soft">
+            Score
           </p>
-
-          <button
-            type="button"
-            onClick={startNewGame}
-            className="min-h-11 rounded-full bg-primary px-6 font-display text-base text-primary-ink shadow-soft-2 transition-transform duration-200 ease-spring hover:-translate-y-0.5 active:translate-y-0 active:shadow-soft-press"
-          >
-            New Game
-          </button>
+          <p className="font-display text-xl leading-none text-ink tabular-nums sm:text-2xl" aria-live="polite">
+            {score.toLocaleString("en-US")}
+          </p>
         </div>
-      </main>
+      </header>
+
+      {/* min-h-0 lets this row shrink; without it the grid row is min-content
+          and the board pushes the page taller than the viewport. */}
+      <div
+        ref={boardFrameRef}
+        className="relative z-10 grid min-h-0 place-items-center"
+        style={{ touchAction: "none" }}
+      >
+        {cellSize > 0 && (
+          <div className="relative animate-pop-in">
+            <Board tiles={tiles} layout={layout} />
+
+            {isOver && (
+              <div className="absolute inset-0 grid animate-pop-in place-content-center rounded-lg bg-surface/85">
+                <p role="status" className="font-display text-2xl text-primary">
+                  Game Over
+                </p>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      <div className="relative z-10 flex items-center justify-center">
+        <button
+          type="button"
+          onClick={startNewGame}
+          className="min-h-11 rounded-full bg-primary px-6 font-display text-base text-primary-ink shadow-soft-2 transition-transform duration-200 ease-spring hover:-translate-y-0.5 active:translate-y-0 active:shadow-soft-press"
+        >
+          New Game
+        </button>
+      </div>
     </div>
   );
 }
