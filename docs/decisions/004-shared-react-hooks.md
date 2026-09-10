@@ -29,8 +29,17 @@ testable without a DOM, and a future non-React consumer is not blocked.
 ## Consequences
 
 - All four front-ends are React 19 and each compiles `shared/` through its own
-  Vite build, so React resolves to the importing app's copy. No new dependency
-  is installed and no bundling changes.
+  Vite build. React is **not** resolved automatically, though: a bare `react`
+  import inside `shared/` resolves from `shared/` upward, and every app's
+  `node_modules` sits below it. Each app that imports a shared hook therefore
+  pins React itself, in two places:
+  - `vite.config.ts` - `resolve.dedupe: ["react", "react-dom"]`, which resolves
+    both from the app root and guarantees one copy in the bundle. Two copies
+    would break hooks at runtime, not just at build time.
+  - `tsconfig.app.json` - `baseUrl` plus `paths` mapping `react` and
+    `react-dom` to that app's `@types/*`, so `tsc -b` type-checks the hook.
+
+  No new dependency is installed.
 - `shared/` now has a peer expectation of React 19. A non-React consumer can
   still import the plain modules, but not the hooks.
 - Docker is unaffected: every image already builds with `context: .` from the

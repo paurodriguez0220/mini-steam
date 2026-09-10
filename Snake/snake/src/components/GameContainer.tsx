@@ -9,11 +9,21 @@ import {
   nextHeadAngle,
 } from "../utils/snake";
 import usePrefersReducedMotion from "../hooks/usePrefersReducedMotion";
+import { useBoardFit } from "../../../../shared/use-board-fit";
 import { postGameScore } from "../../../../shared/game-score";
 import type { GameMetric } from "../../../../shared/game-score";
 
 const GRID_SIZE = 20;
-const CELL_SIZE = 30;
+
+/**
+ * Biggest cell worth drawing. 30px is what the board used to be pinned at, so
+ * a desktop board comes out exactly the size it always was; anything narrower
+ * now shrinks to fit instead of overflowing.
+ */
+const MAX_CELL_PX = 30;
+
+/** The board's 2px frame, both sides. Not cell, so it comes off the fit. */
+const BOARD_BORDER_TOTAL_PX = 4;
 const START_SNAKE: Point[] = [
   { x: 10, y: 5 }, { x: 9, y: 5 }, { x: 8, y: 5 }, { x: 7, y: 5 },
   { x: 7, y: 6 }, { x: 7, y: 7 }, { x: 6, y: 7 }, { x: 5, y: 7 },
@@ -86,6 +96,15 @@ export default function GameContainer() {
 
   const prefersReducedMotion = usePrefersReducedMotion();
   const glideMs = prefersReducedMotion ? 0 : tickMsFor(snake.length);
+
+  const [boardFrameRef, cellSize] = useBoardFit<HTMLDivElement>({
+    cols: GRID_SIZE,
+    rows: GRID_SIZE,
+    gapTotal: BOARD_BORDER_TOTAL_PX,
+    // Snake must always show the whole board, so the fit always wins.
+    min: 0,
+    max: MAX_CELL_PX,
+  });
 
   const hasAnnouncedReady = useRef(false);
   const hasReportedFinal = useRef(false);
@@ -218,53 +237,71 @@ export default function GameContainer() {
   };
 
   return (
-    <div className="page-bg relative isolate min-h-screen">
+    // h-dvh, not min-h-screen: inside the storefront iframe the viewport IS
+    // the iframe, and a min-height taller than it is what grew the scrollbar.
+    // Three rows - HUD, board, controls - and only the board row flexes, so
+    // the game cannot outgrow its viewport by construction.
+    <div className="page-bg relative isolate grid h-dvh grid-rows-[auto_1fr_auto] gap-2 overflow-hidden p-2 sm:gap-3 sm:p-4">
       <span className="confetti" aria-hidden="true" />
 
-      <div className="relative z-10 flex animate-pop-in flex-col items-center gap-4 px-4 py-8">
-        <h1 className="font-display text-4xl text-ink">Snake</h1>
+      <header className="relative z-10 flex animate-pop-in flex-wrap items-center justify-center gap-x-4 gap-y-1">
+        <h1 className="font-display text-2xl text-ink sm:text-4xl">Snake</h1>
 
         <p
-          className="rounded-full bg-surface px-5 py-2 font-text text-lg text-ink-soft shadow-soft-1"
+          className="rounded-full bg-surface px-4 py-1 font-text text-base text-ink-soft shadow-soft-1 sm:px-5 sm:py-2 sm:text-lg"
           aria-live="polite"
         >
           Score: <span className="font-display text-ink">{score}</span>
         </p>
+      </header>
 
-        {running && !started && (
-          <p
-            role="status"
-            className="rounded-lg bg-surface px-5 py-3 font-text text-ink-soft shadow-soft-1"
-          >
-            Press an arrow key or <span className="font-display text-ink">WASD</span> to start
-          </p>
-        )}
+      {/* min-h-0 is what lets this row shrink. A grid row is min-content by
+          default, which would let the board push the container taller than
+          the viewport - the exact bug being fixed. */}
+      <div ref={boardFrameRef} className="relative z-10 grid min-h-0 place-items-center">
+        {cellSize > 0 && (
+          <div className="relative">
+            <Grid
+              snake={snake}
+              food={food}
+              gridSize={GRID_SIZE}
+              cellSize={cellSize}
+              headAngle={headAngle}
+              glideMs={glideMs}
+            />
 
-        {!running && (
-          <div
-            role="status"
-            className="flex animate-pop-in items-center gap-3 rounded-lg bg-surface px-5 py-4 shadow-soft-2"
-          >
-            <span className="font-display text-lg text-primary">Game Over</span>
-            <button
-              type="button"
-              onClick={restart}
-              className="min-h-11 rounded-full bg-primary px-5 font-display text-primary-ink shadow-soft-1 transition ease-spring hover:bg-primary-deep active:shadow-soft-press"
-            >
-              Restart
-            </button>
+            {running && !started && (
+              <p
+                role="status"
+                className="absolute inset-x-2 top-1/2 -translate-y-1/2 rounded-lg bg-surface/95 px-4 py-3 text-center font-text text-sm text-ink-soft shadow-soft-2 sm:text-base"
+              >
+                Swipe, or press an arrow key or{" "}
+                <span className="font-display text-ink">WASD</span>, to start
+              </p>
+            )}
+
+            {!running && (
+              <div
+                role="status"
+                className="absolute inset-x-2 top-1/2 flex -translate-y-1/2 animate-pop-in flex-col items-center gap-3 rounded-lg bg-surface/95 px-5 py-4 shadow-soft-2"
+              >
+                <span className="font-display text-lg text-primary">Game Over</span>
+                <button
+                  type="button"
+                  onClick={restart}
+                  className="min-h-11 rounded-full bg-primary px-5 font-display text-primary-ink shadow-soft-1 transition ease-spring hover:bg-primary-deep active:shadow-soft-press"
+                >
+                  Restart
+                </button>
+              </div>
+            )}
           </div>
         )}
-
-        <Grid
-          snake={snake}
-          food={food}
-          gridSize={GRID_SIZE}
-          cellSize={CELL_SIZE}
-          headAngle={headAngle}
-          glideMs={glideMs}
-        />
       </div>
+
+      {/* Task 5 puts the D-pad here. Empty until then, but the row exists so
+          adding it does not re-flow the board. */}
+      <div className="relative z-10" />
     </div>
   );
 }
