@@ -10,6 +10,7 @@ import {
   calculateNumbers,
   revealFlood,
 } from "../utils/board";
+import { usePinchZoom } from "../hooks/usePinchZoom";
 import { useBoardFit } from "../../../../shared/use-board-fit";
 import { postGameScore } from "../../../../shared/game-score";
 import type { GameMetric, GameOutcome } from "../../../../shared/game-score";
@@ -55,6 +56,8 @@ export function GameContainer(): JSX.Element {
     min: MIN_CELL_PX,
     max: MAX_CELL_PX,
   });
+
+  const { scale, handlers: pinchHandlers } = usePinchZoom({ min: 0.6, max: 2 });
 
   const [board, setBoard] = useState(() => createEmptyBoard(DIFFICULTIES[INITIAL_DIFFICULTY]));
   const [started, setStarted] = useState(false);
@@ -212,25 +215,34 @@ export function GameContainer(): JSX.Element {
       <div
         ref={boardFrameRef}
         className="relative z-10 min-h-0 overflow-auto overscroll-contain"
-        style={{ touchAction: "pan-x pan-y" }}
+        style={{ touchAction: "pan-x pan-y pinch-zoom" }}
+        {...pinchHandlers}
       >
         <div className="grid min-h-full w-max min-w-full place-items-center p-1">
-          {cellSize > 0 && (
-            <div className="inline-flex animate-pop-in flex-col items-center gap-3 rounded-lg bg-surface p-3 shadow-soft-2">
-              <Board
-                board={board}
-                config={config}
-                cellSize={cellSize}
-                onReveal={handleReveal}
-                onFlag={handleFlag}
-              />
+          <div
+            style={{
+              transform: `scale(${scale})`,
+              transformOrigin: "center center",
+              transition: "transform 80ms linear",
+            }}
+          >
+            {cellSize > 0 && (
+              <div className="inline-flex animate-pop-in flex-col items-center gap-3 rounded-lg bg-surface p-3 shadow-soft-2">
+                <Board
+                  board={board}
+                  config={config}
+                  cellSize={cellSize}
+                  onReveal={handleReveal}
+                  onFlag={handleFlag}
+                />
 
-              {gameOver && (
-                <p className="font-display text-xl font-bold text-primary">💥 Game Over</p>
-              )}
-              {won && <p className="font-display text-xl font-bold text-mint">🎉 You Won!</p>}
-            </div>
-          )}
+                {gameOver && (
+                  <p className="font-display text-xl font-bold text-primary">💥 Game Over</p>
+                )}
+                {won && <p className="font-display text-xl font-bold text-mint">🎉 You Won!</p>}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
