@@ -302,29 +302,37 @@ export default function GameContainer() {
               glideMs={glideMs}
             />
 
+            {/* The inset is a max-width bound, not the card's width: with the
+                card itself absolutely positioned at inset-x-2 it stretched the
+                full board and read as a banner rather than a message. The
+                wrapper takes the inset, the card shrink-wraps inside it. */}
             {running && !started && (
-              <p
-                role="status"
-                className="absolute inset-x-2 top-1/2 -translate-y-1/2 rounded-lg bg-surface/95 px-4 py-3 text-center font-text text-sm text-ink-soft shadow-soft-2 sm:text-base"
-              >
-                Swipe, or press an arrow key or{" "}
-                <span className="font-display text-ink">WASD</span>, to start
-              </p>
+              <div className="pointer-events-none absolute inset-x-2 top-1/2 flex -translate-y-1/2 justify-center">
+                <p
+                  role="status"
+                  className="rounded-lg bg-surface/95 px-4 py-3 text-center font-text text-sm text-ink-soft shadow-soft-2 sm:text-base"
+                >
+                  Swipe, or press an arrow key or{" "}
+                  <span className="font-display text-ink">WASD</span>, to start
+                </p>
+              </div>
             )}
 
             {!running && (
-              <div
-                role="status"
-                className="absolute inset-x-2 top-1/2 flex -translate-y-1/2 animate-pop-in flex-col items-center gap-3 rounded-lg bg-surface/95 px-5 py-4 shadow-soft-2"
-              >
-                <span className="font-display text-lg text-primary">Game Over</span>
-                <button
-                  type="button"
-                  onClick={restart}
-                  className="min-h-11 rounded-full bg-primary px-5 font-display text-primary-ink shadow-soft-1 transition ease-spring hover:bg-primary-deep active:shadow-soft-press"
+              <div className="absolute inset-x-2 top-1/2 flex -translate-y-1/2 justify-center">
+                <div
+                  role="status"
+                  className="flex animate-pop-in flex-col items-center gap-3 rounded-lg bg-surface/95 px-6 py-4 shadow-soft-2"
                 >
-                  Restart
-                </button>
+                  <span className="font-display text-lg text-primary">Game Over</span>
+                  <button
+                    type="button"
+                    onClick={restart}
+                    className="min-h-11 rounded-full bg-primary px-5 font-display text-primary-ink shadow-soft-1 transition ease-spring hover:bg-primary-deep active:shadow-soft-press"
+                  >
+                    Restart
+                  </button>
+                </div>
               </div>
             )}
           </div>
