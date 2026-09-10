@@ -89,6 +89,17 @@ services:
     ports:
       - "${GAME_MINESWEEPER_PORT:-5176}:8080"
 
+  game-tictactoe:
+    build:
+      context: .
+      dockerfile: TicTacToe/tictactoe/Dockerfile
+      args:
+        # Where the game posts its score messages. The storefront validates the
+        # sending origin on its side too.
+        VITE_STOREFRONT_ORIGIN: "http://localhost:${UI_PORT:-5173}"
+    ports:
+      - "${GAME_TICTACTOE_PORT:-5177}:8080"
+
 volumes:
   api-data:
   azurite-data:

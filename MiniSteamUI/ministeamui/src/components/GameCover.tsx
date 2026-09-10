@@ -8,7 +8,7 @@ import type { JSX } from "react";
  * The scene palettes are illustration art, not theme: they stay fixed in light and
  * dark so a cover reads the same on the shelf as it does on a detail page.
  */
-type CoverScene = "tiles" | "snake" | "bomb" | "initials";
+type CoverScene = "tiles" | "snake" | "bomb" | "grid" | "initials";
 
 export interface GameCoverProps {
   /** Game title - decides which mascot scene is drawn and feeds the fallback initials. */
@@ -45,6 +45,7 @@ const SCENE_GROUND: Record<CoverScene, string> = {
   tiles: "#ffeec4",
   snake: "#d7f5e6",
   bomb: "#dcebff",
+  grid: "#ffe6ef",
   initials: "#e7e0ff",
 };
 
@@ -53,6 +54,7 @@ function resolveScene(title: string): CoverScene {
   if (key.includes("2048")) return "tiles";
   if (key.includes("snake")) return "snake";
   if (key.includes("mine")) return "bomb";
+  if (key.includes("tic") || key.includes("tac")) return "grid";
   return "initials";
 }
 
@@ -261,6 +263,61 @@ function bombScene(): JSX.Element {
   );
 }
 
+/**
+ * Tic Tac Toe - a board mid-game, with the winning diagonal already drawn.
+ *
+ * The three X marks run corner to corner so the cover reads as a won game
+ * rather than an empty grid, and the strike-through says which line won.
+ */
+function gridScene(): JSX.Element {
+  const LINE = "#f2b8cb";
+  const X = "#e8352e";
+  const O = "#1faa63";
+
+  const cross = (cx: number, cy: number): JSX.Element => (
+    <g stroke={X} strokeWidth={14} strokeLinecap="round">
+      <line x1={cx - 22} y1={cy - 22} x2={cx + 22} y2={cy + 22} />
+      <line x1={cx + 22} y1={cy - 22} x2={cx - 22} y2={cy + 22} />
+    </g>
+  );
+
+  return (
+    <g>
+      <circle cx={274} cy={46} r={30} fill={LINE} opacity={0.55} />
+      <circle cx={40} cy={206} r={22} fill={LINE} opacity={0.55} />
+
+      <g className={MASCOT}>
+        {/* The grid: two verticals, two horizontals, no outer box. */}
+        <g stroke={LINE} strokeWidth={12} strokeLinecap="round">
+          <line x1={133} y1={50} x2={133} y2={190} />
+          <line x1={187} y1={50} x2={187} y2={190} />
+          <line x1={106} y1={97} x2={214} y2={97} />
+          <line x1={106} y1={143} x2={214} y2={143} />
+        </g>
+
+        {cross(106, 74)}
+        {cross(160, 120)}
+        {cross(214, 166)}
+
+        <circle cx={214} cy={74} r={20} fill="none" stroke={O} strokeWidth={13} />
+        <circle cx={106} cy={120} r={20} fill="none" stroke={O} strokeWidth={13} />
+
+        {/* The winning strike, drawn through the three crosses. */}
+        <line
+          x1={92}
+          y1={60}
+          x2={228}
+          y2={180}
+          stroke="#2b2440"
+          strokeWidth={11}
+          strokeLinecap="round"
+          opacity={0.82}
+        />
+      </g>
+    </g>
+  );
+}
+
 function initialsScene(text: string, palette: ScenePalette): JSX.Element {
   return (
     <g>
@@ -318,6 +375,7 @@ export function GameCover({ title, seed, ribbon, isHero = false }: GameCoverProp
         {scene === "tiles" ? tilesScene() : null}
         {scene === "snake" ? snakeScene() : null}
         {scene === "bomb" ? bombScene() : null}
+        {scene === "grid" ? gridScene() : null}
         {scene === "initials" ? initialsScene(initialsFor(title), palette) : null}
       </svg>
 

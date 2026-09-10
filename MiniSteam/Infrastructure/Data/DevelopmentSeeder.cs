@@ -99,6 +99,14 @@ namespace MiniSteam.Infrastructure.Data
                     Url = config["Seed:GameUrls:Minesweeper"] ?? "http://localhost:5176",
                     IconPath = string.Empty,
                     Category = "Puzzle"
+                },
+                new Game
+                {
+                    Title = "Tic Tac Toe",
+                    Description = "Five rounds against the machine. A draw still scores.",
+                    Url = config["Seed:GameUrls:TicTacToe"] ?? "http://localhost:5177",
+                    IconPath = string.Empty,
+                    Category = "Puzzle"
                 }
             };
 
@@ -155,7 +163,13 @@ namespace MiniSteam.Infrastructure.Data
                 new("Minesweeper", ScoreValues.MetricKinds.Seconds, 38, ScoreValues.Outcomes.Won, ScoreValues.Difficulties.Easy, now.AddDays(-5)),
                 new("Minesweeper", ScoreValues.MetricKinds.Seconds, 122, ScoreValues.Outcomes.Won, ScoreValues.Difficulties.Medium, now.AddDays(-3)),
                 new("Minesweeper", ScoreValues.MetricKinds.Seconds, 264, ScoreValues.Outcomes.Won, ScoreValues.Difficulties.Hard, now.AddDays(-1)),
-                new("Minesweeper", ScoreValues.MetricKinds.Seconds, 3, ScoreValues.Outcomes.Lost, ScoreValues.Difficulties.Hard, now.AddHours(-6))
+                new("Minesweeper", ScoreValues.MetricKinds.Seconds, 3, ScoreValues.Outcomes.Lost, ScoreValues.Difficulties.Hard, now.AddHours(-6)),
+                // Tic Tac Toe is scored per match, out of 15. The hard row is a
+                // 5 on purpose: against unbeatable minimax five draws is the
+                // ceiling, which is exactly why a draw is worth a point.
+                new("Tic Tac Toe", ScoreValues.MetricKinds.Points, 13, ScoreValues.Outcomes.Won, ScoreValues.Difficulties.Easy, now.AddDays(-4)),
+                new("Tic Tac Toe", ScoreValues.MetricKinds.Points, 9, ScoreValues.Outcomes.Won, ScoreValues.Difficulties.Medium, now.AddDays(-2)),
+                new("Tic Tac Toe", ScoreValues.MetricKinds.Points, 5, ScoreValues.Outcomes.Lost, ScoreValues.Difficulties.Hard, now.AddHours(-9))
             };
 
             var seeded = 0;

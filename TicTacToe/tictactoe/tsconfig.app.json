@@ -1,0 +1,43 @@
+{
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
+    "target": "ES2022",
+    "useDefineForClassFields": true,
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "types": ["vite/client"],
+    "skipLibCheck": true,
+
+    /* Bundler mode */
+    "moduleResolution": "bundler",
+
+    /* shared/ sits above this app, so a bare "react" import inside it resolves
+       from shared/ upward and never reaches this app's node_modules. Pin it
+       here; vite.config.ts pins the same two for the bundler. */
+    "baseUrl": ".",
+    "paths": {
+      "react": ["./node_modules/@types/react"],
+      "react-dom": ["./node_modules/@types/react-dom"]
+    },
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+    "jsx": "react-jsx",
+
+    /* Linting */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "erasableSyntaxOnly": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedSideEffectImports": true
+  },
+  "include": ["src"],
+
+  /* Tests are collected, transpiled and run by the ROOT vitest harness, and
+     `vitest` is a root dependency. The deploy workflow only ever installs
+     this folder, so type-checking them here would make `tsc -b` fail in CI
+     on an import it cannot resolve. */
+  "exclude": ["src/**/*.test.ts"]
+}

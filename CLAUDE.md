@@ -4,8 +4,8 @@
 
 Mini Steam is a personal portfolio "game store" — a Steam-like storefront that lists small
 browser games and runs them in an embedded iframe. It is one repository containing five
-independently deployable apps: a .NET 9 REST API and four React + Vite front-ends
-(the storefront plus three games).
+independently deployable apps: a .NET 9 REST API and five React + Vite front-ends
+(the storefront plus four games).
 
 ## Architecture
 
@@ -13,7 +13,7 @@ independently deployable apps: a .NET 9 REST API and four React + Vite front-end
 | --- | --- | --- |
 | `MiniSteam` | .NET 9 Web API, EF Core 9, SQLite | Games/users/auth API, JWT issuance, blob uploads, score leaderboards |
 | `MiniSteamUI` | React 19, Vite, Tailwind 4, Zustand, React Router | Storefront; lists games, embeds them via `<iframe>` |
-| `2048`, `Snake`, `Minesweeper` | React 19, Vite, Tailwind 4 | Standalone games, each its own Static Web App; each posts its score up to the storefront |
+| `2048`, `Snake`, `Minesweeper`, `TicTacToe` | React 19, Vite, Tailwind 4 | Standalone games, each its own Static Web App; each posts its score up to the storefront |
 
 The API follows a layered structure (`Domain` / `Application` / `Infrastructure` / `Controllers`):
 
@@ -44,7 +44,7 @@ mini-steam/
 |   |-- Controllers/
 |   |-- Middleware/
 |   `-- Migrations/        # EF Core migrations
-|-- shared/                # imported by ALL four front-ends (see docs/decisions/003)
+|-- shared/                # imported by ALL five front-ends (see docs/decisions/003)
 |   |-- theme.css         # the playroom design tokens, as a Tailwind @theme block
 |   |-- game-score.ts     # the score envelope a game posts to the storefront
 |   `-- game-theme.ts     # applies ?theme= inside an embedded game
@@ -56,7 +56,8 @@ mini-steam/
 |   `-- src/routes/            # one file per route: store, game detail, play, leaderboard
 |-- 2048/2048/                 # game
 |-- Snake/snake/               # game
-`-- Minesweeper/minesweeper/   # game
+|-- Minesweeper/minesweeper/   # game
+`-- TicTacToe/tictactoe/       # game (the only one with unit tests)
 ```
 
 Note the doubled folder names (`2048/2048`, `Snake/snake`): the outer folder holds the
@@ -94,10 +95,15 @@ Run from the repo root unless noted.
 
 API docs are served by Scalar at `/scalar/v1` and the OpenAPI document at `/openapi/v1.json`.
 
-`shared/` has unit tests (`npm test` from the repo root). The apps do not yet —
-that is tracked in `docs/tasks/queue/add-test-suites.md`. Verify app changes
-with `dotnet build` and `npm run build`, and say plainly that app tests were
-not run.
+`shared/` and `TicTacToe/tictactoe` have unit tests (`npm test` from the repo
+root — the root harness collects both). The other three games and the API do
+not yet; that is tracked in `docs/tasks/queue/add-test-suites.md`. Verify
+changes elsewhere with `dotnet build` and `npm run build`, and say plainly
+that app tests were not run.
+
+Tests for an app live beside its source but are **excluded from that app's
+`tsconfig.app.json`**: `vitest` is a root dependency and the deploy workflows
+only install the app folder, so type-checking them in the app would break CI.
 
 The API stores data in SQLite. In Docker the file lives on the `api-data` volume at
 `/data/ministeam.db`; run `./scripts/down.ps1 -Purge` to reset to a clean, re-seeded
@@ -160,7 +166,7 @@ Read the relevant file **before** writing code:
 - **Never run `DevelopmentSeeder` outside Development.** Production migrations are
   deliberate and reviewed, never applied automatically at startup.
 - **Never commit `.env`.** Only `.env.example`, with names and safe local defaults.
-- **Never build a front-end image from its own folder.** All four SPAs import from
+- **Never build a front-end image from its own folder.** All five SPAs import from
   `shared/`, which sits above them, so every image builds with `context: .` from the
   repository root and an explicit `dockerfile:` path - see `docs/decisions/003-shared-design-tokens.md`.
 - **Never duplicate a design token into an app.** Game-specific tokens (2048's tile ramp,

@@ -13,8 +13,10 @@
  *   seconds, where LOWER is better. So a message carries its own metric
  *   kind, its own direction (`betterIs`) and an optional `difficulty`, and
  *   the storefront ranks per game rather than pretending one number fits all.
- * - `difficulty` matters for Minesweeper only: a 40-second win on `easy` and
- *   on `hard` are not the same achievement, so they rank separately.
+ * - `difficulty` matters for Minesweeper and Tic Tac Toe: a 40-second win on
+ *   `easy` and on `hard` are not the same achievement, and neither is a 15 on
+ *   easy Tic Tac Toe and the 5 that unbeatable minimax caps you at. Both rank
+ *   per difficulty.
  * - Scores are not sensitive, but the storefront still validates
  *   `event.origin` against its own allow-list, because anything embedded or
  *   opened can post to it.
@@ -24,7 +26,7 @@ export const GAME_SCORE_SOURCE = "ministeam-game";
 export const GAME_SCORE_VERSION = 1;
 
 /** Matches the game slugs the storefront serves. */
-export type GameId = "2048" | "snake" | "minesweeper";
+export type GameId = "2048" | "snake" | "minesweeper" | "tictactoe";
 
 /** `points` accumulate upward; `seconds` measure elapsed time. */
 export type MetricKind = "points" | "seconds";

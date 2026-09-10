@@ -1,0 +1,39 @@
+/* Fonts must be the first rule in the document: CSS drops an @import that
+   follows other rules, and the shared theme is inlined after Tailwind. */
+@import url("https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Nunito:wght@400..900&display=swap");
+
+@import "tailwindcss";
+@import "../../../shared/theme.css";
+
+/* Tic Tac Toe adds three things the shared palette does not have: a colour
+   per mark, and a highlight for the winning line.
+
+   X takes the playroom red and O the mint, so the two never rely on shape
+   alone - the marks stay distinguishable to a player who cannot separate the
+   glyphs at a glance, and they carry the store's colours onto the board.
+
+   Unlike Snake's board these DO flip in `.dark`: the marks sit on `surface`,
+   which flips, so a fixed ink would lose its contrast in one theme or the
+   other. */
+@theme {
+  --color-mark-x: #e8352e;
+  --color-mark-o: #1faa63;
+
+  /* The winning three, lifted out of the board. Warm and low-saturation so
+     the marks stay the loudest thing on it. */
+  --color-mark-win: #ffe08a;
+
+  /* The frame the nine squares sit in. Its own token rather than 2048's
+     `board-frame`, which is defined in that app and does not exist here -
+     game tokens are per-app on top of the shared layer, never borrowed
+     across. It has to contrast with `surface`, which the cells use, in both
+     themes: rose against white here, plum against near-black below. */
+  --color-grid-frame: #f0cdd9;
+}
+
+.dark {
+  --color-mark-x: #ff6b64;
+  --color-mark-o: #46d18c;
+  --color-mark-win: #5d4a1f;
+  --color-grid-frame: #4a3340;
+}
