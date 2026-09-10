@@ -21,14 +21,16 @@ const ICON_BUTTON =
   "active:translate-y-0 active:scale-90 active:shadow-soft-press";
 
 /**
- * 4:3 box, capped so the whole dialog still fits the viewport. The two heights
- * account for the different dialog padding on phones and on everything else.
+ * A 4:3 box on anything wider than a phone, and 3:4 below that - a phone in
+ * portrait gets a tall play area instead of a letterbox. Capped so the whole
+ * dialog still fits the viewport; the two heights account for the different
+ * dialog padding on phones and on everything else.
  */
 const FRAME =
-  "relative mx-auto aspect-4/3 w-auto max-w-full overflow-hidden rounded-sm bg-bg-2 " +
+  "relative mx-auto aspect-3/4 w-auto max-w-full overflow-hidden rounded-sm bg-bg-2 " +
   "[box-shadow:inset_0_0_0_2px_var(--color-line)] " +
-  "h-[min(calc((100vw_-_42px)*0.75),calc(100dvh_-_136px))] " +
-  "sm:rounded-md sm:h-[min(calc((100vw_-_66px)*0.75),780px,calc(100dvh_-_154px))]";
+  "h-[min(calc((100vw_-_42px)*1.3333),calc(100dvh_-_136px))] " +
+  "sm:aspect-4/3 sm:rounded-md sm:h-[min(calc((100vw_-_66px)*0.75),780px,calc(100dvh_-_154px))]";
 
 /**
  * The game is on its own origin and cannot see the storefront's `.dark` class, so
@@ -122,8 +124,15 @@ export function PlayOverlay({ game, onClose, theme = "light" }: PlayOverlayProps
           )}
         </div>
 
+        {/* Two messages, picked in CSS rather than JS, so the hint follows a
+            device that gains a mouse or is rotated without a re-render. */}
         <p className="text-center text-[13px] font-bold text-ink-soft">
-          Arrow keys are already pointed at the game. Press Esc to leave.
+          <span className="[@media(pointer:coarse)]:hidden">
+            Arrow keys are already pointed at the game. Press Esc to leave.
+          </span>
+          <span className="hidden [@media(pointer:coarse)]:inline">
+            Swipe to play. Tap outside to leave.
+          </span>
         </p>
       </div>
     </div>
