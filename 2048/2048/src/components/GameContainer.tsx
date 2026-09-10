@@ -9,6 +9,8 @@ import {
   boardLayout,
 } from "../board-layout";
 import { useBoardFit } from "../../../../shared/use-board-fit";
+import { useSwipe } from "../../../../shared/use-swipe";
+import type { SwipeDirection } from "../../../../shared/swipe";
 import { postGameScore, type GameMetric } from "../../../../shared/game-score";
 
 type Direction = "up" | "down" | "left" | "right";
@@ -86,17 +88,16 @@ export function GameContainer() {
     return () => clearTimeout(timeout);
   }, [tiles]);
 
-  // Keyboard controls. The move is computed here in the handler body, not
-  // inside a setTiles updater: React 19 StrictMode invokes updaters twice, so
-  // any setState nested in one double-counts the score and double-advances
-  // nextId. Each piece of state gets its own top-level update instead.
-  useEffect(() => {
-    const handleKey = (e: KeyboardEvent) => {
-      const direction = KEY_TO_DIRECTION[e.key];
-      if (!direction) return;
-
-      // Stop the arrow keys scrolling the page the game is embedded in.
-      e.preventDefault();
+  /**
+   * The one way a move enters the game, whichever input asked for it.
+   *
+   * The move is computed here rather than inside a setTiles updater: React 19
+   * StrictMode invokes updaters twice, so any setState nested in one
+   * double-counts the score and double-advances nextId. Each piece of state
+   * gets its own top-level update instead.
+   */
+  const applyMove = useCallback(
+    (direction: Direction): void => {
       if (isOver) return;
 
       const { tiles: moved, gained } = moveTiles(tiles, direction);
@@ -108,11 +109,32 @@ export function GameContainer() {
       if (gained > 0) {
         setScore((current) => current + gained);
       }
+    },
+    [tiles, nextId, isOver],
+  );
+
+  // SwipeDirection and Direction have the same four members, so a swipe maps
+  // straight through with no lookup table to keep in sync.
+  const handleSwipe = useCallback(
+    (direction: SwipeDirection): void => applyMove(direction),
+    [applyMove],
+  );
+
+  const swipeHandlers = useSwipe(handleSwipe);
+
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      const direction = KEY_TO_DIRECTION[e.key];
+      if (!direction) return;
+
+      // Stop the arrow keys scrolling the page the game is embedded in.
+      e.preventDefault();
+      applyMove(direction);
     };
 
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
-  }, [tiles, nextId, isOver]);
+  }, [applyMove]);
 
   // "ready" - once, on mount.
   useEffect(() => {
@@ -168,6 +190,7 @@ export function GameContainer() {
         ref={boardFrameRef}
         className="relative z-10 grid min-h-0 place-items-center"
         style={{ touchAction: "none" }}
+        {...swipeHandlers}
       >
         {cellSize > 0 && (
           <div className="relative animate-pop-in">
